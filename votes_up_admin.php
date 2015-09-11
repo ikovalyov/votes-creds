@@ -1,14 +1,8 @@
 <?php
 
-// Hook for adding admin menus
-add_action('admin_menu', 'mt_add_pages');
 
-// action function for above hook
-function mt_add_pages() {
-    // Add a new top-level menu (ill-advised):
-    add_menu_page('Votes UP', 'Votes UP', 8, __FILE__, 'mt_toplevel_page');
 
-}
+
 
 // mt_toplevel_page() displays the page content for the custom  menu
 function mt_toplevel_page()
@@ -54,6 +48,9 @@ function mt_toplevel_page()
             $pay_reply = 0;
         }
     }
+
+
+
 
 include("votes_up_admin.phtml");
 
