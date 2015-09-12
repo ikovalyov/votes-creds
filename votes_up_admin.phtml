@@ -1,0 +1,55 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: alex
+ * Date: 02.07.2015
+ * Time: 13:31
+ */
+?>
+<!-- Create Form -->
+    <div class="wrap">
+        <!-- header -->
+        <h2> Points for voting up </h2>
+
+        <!-- options form -->
+        <form name="form1" method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>">
+            <table class="form-table">
+
+                <tr valign="top">
+                    <th scope="row"><?php _e('Enlarge creds') ?></th>
+                <td><input type="checkbox" name="choice"  value="" <?php echo $my_cred_enabled == 1 ? 'checked="checked"' : '';?>/></td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row"><?php _e('Add points for voting up') ?></th>
+                    <td><input type="text" name="voting_up" size="8"
+                               value="<?php echo $votes_up_cred; ?>" /></td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row"><?php _e('Payment for the topic') ?></th>
+                    <td><input type="checkbox" name="Pay_message"  value="" <?php echo $pay_message == 1 ? 'checked="checked"' : '';?> /></td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row"><?php _e('Remove  points for message') ?></th>
+                    <td><input type="text" name="pay_vote_cred" size="8" value="<?php echo $pay_vote_cred; ?>" /></td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row"><?php _e('Pay for the reply') ?></th>
+                    <td><input type="checkbox" name="Pay_reply"  value="" <?php echo $pay_reply == 1 ? 'checked="checked"' : '';?> /></td>
+                </tr>
+
+            </table>
+            <hr />
+
+            <input type="hidden" name="action" value="update" />
+            <input type="hidden" name="page_options" value="voting_up" />
+
+            <p class="submit">
+                <input type="submit" name="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+            </p>
+
+        </form>
+    </div>
