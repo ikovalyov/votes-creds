@@ -8,90 +8,103 @@ Version: 1.0.1
 */
 
 
-//----------------------------------------------------------
-define( 'II_VERSION', '1.0.0' );
-define( 'II__PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'II__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+// Hook for adding admin menus
+add_action('bbp_forum_metabox', 'add_pay_topic');
+add_action('bbp_topic_metabox', 'add_pay_reply');
+// Hook for adding  attributes
+add_action( 'save_post', 'add_forum_attributes' );
+add_action( 'save_post', 'add_reply_attributes' );
+// Add custom fields to bbpress topics and replyes on front end
+add_action( 'bbp_theme_before_reply_form_notices', 'theme_before_reply' );
+add_action ( 'bbp_theme_before_topic_form_notices', 'theme_before_topic');
+//Remove creds
+add_action('init', 'pay_for_topic');
+add_action('init', 'pay_for_reply');
+//Add creds for vote
+add_action('bbpvotes_do_post_vote', 'do_post_vote_up',10,1);
 
-require_once 'votes_up_admin.php';
-
-
-register_activation_hook(__FILE__,'votes_up_create_table');
-
-$ii_db_version = "1.0";
-
-//создание пользовательской таблицы
-function votes_up_create_table () {
-    global $wpdb;
-    global $ii_db_version;
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-    $table_name = $wpdb->prefix . "votes_up";
-    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-        $sql = "CREATE TABLE " . $table_name . " (
-	        id mediumint(9) KEY NOT NULL AUTO_INCREMENT,
-	         votes_up_cred DOUBLE(5,2) DEFAULT '0' NOT NULL,
-	         choice TINYINT(1) DEFAULT '0' NOT NULL,
-	         Pay_message TINYINT(1) DEFAULT '0' NOT NULL,
-	         pay_vote_cred DOUBLE(5,2) DEFAULT '0' NOT NULL,
-	         Pay_reply TINYINT(1) DEFAULT '0' NOT NULL
-	        );";
-
-        dbDelta($sql);
-
-         $wpdb->insert( $table_name, array(
-             'votes_up_cred' => 0,
-             'choice' => 0,
-             'Pay_message' => 0,
-             'pay_vote_cred' => 0,
-             'Pay_reply' => 0
-         ));
-    }
-    add_option("ii_db_version", $ii_db_version);
+// функция добавления чекбокса в свойства форума    \/
+function add_pay_topic() {
+    include("votes_up_pay_forum.phtml");
 }
 
+// функция добавления чекбокса в свойства темы  \/
+function add_pay_reply() {
+    include("votes_up_pay_reply.phtml");
+}
 
-//запись данных в бд
-function votes_up_set_data()
-{
-    global $wpdb;
-    $tbl_votes_up = $wpdb->prefix . "votes_up";
-
-    if(isset($_REQUEST['choice'])){
-       $votes_up_cred =  $_POST['voting_up'];
+//функция добавления атрибутов форума в базу wp_postmeta    \/
+function add_forum_attributes( $post_id ) {
+    // If this is an autosave, our form has not been submitted, so we don't want to do anything.
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        return;
+    }
+    // Make sure that it is set.
+    if ( ! isset( $_POST['pay_forum_cred'] ) ) {
+        return;
+    }
+    if(isset($_REQUEST['pay_topic'])){
+        $pay_forum_cred = sanitize_text_field( $_POST['pay_forum_cred'] );
     }
     else{
-        $votes_up_cred = 0;
+        $pay_forum_cred = 0;
     }
-
-    if(isset($_REQUEST['Pay_message'])){
-        $pay_vote_cred =  $_POST['pay_vote_cred'];
+    if ( ! isset( $_POST['voting_up'] ) ) {
+        return;
+    }
+    if(isset($_REQUEST['vote_up'])){
+        $pay_vote_cred = sanitize_text_field( $_POST['voting_up'] );
     }
     else{
         $pay_vote_cred = 0;
     }
 
-    $wpdb->update($tbl_votes_up, array(
-            "votes_up_cred" => $votes_up_cred,
-            "choice" => (isset($_REQUEST['choice']))?1:0,
-            "Pay_message" => (isset($_REQUEST['Pay_message']))?1:0,
-            "pay_vote_cred" => $pay_vote_cred,
-            "Pay_reply" => (isset($_REQUEST['Pay_reply']))?1:0 ),
-        array("id" => 1),  array("%d", "%d","%d","%d","%d"), array("%d"));
+    // Update the meta field in the database.
+    update_post_meta( $post_id,'_pay_forum', (isset($_REQUEST['pay_topic'])) ? 1 : 0 );
+    update_post_meta( $post_id, '_cost_forum', $pay_forum_cred );
+    update_post_meta( $post_id,'_pay_vote', (isset($_REQUEST['vote_up'])) ? 1 : 0 );
+    update_post_meta( $post_id, '_cost_vote', $pay_vote_cred );
 
-    echo '<h2>Changes are saved.</h2>';
 }
 
+//функция добавления атрибутов ответа в базу wp_postmeta    \/
+function add_reply_attributes( $post_id ) {
+    // If this is an autosave, our form has not been submitted, so we don't want to do anything.
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        return;
+    }
+    // Make sure that it is set.
+    if ( ! isset( $_POST['pay_reply_cred'] ) ) {
+        return;
+    }
+    if(isset($_REQUEST['pay_reply'])){
+        $pay_reply_cred = sanitize_text_field( $_POST['pay_reply_cred'] );
+    }
+    else{
+        $pay_reply_cred = 0;
+    }
 
-//Add creds
-add_action('bbpvotes_do_post_vote', 'do_post_vote_up',10,3);
+    // Update the meta field in the database.
+    update_post_meta( $post_id,'_pay_reply', (isset($_REQUEST['pay_reply'])) ? 1 : 0 );
+    update_post_meta( $post_id, '_cost_reply', $pay_reply_cred );
+
+}
+
+//добавление кредов за голосование
 function do_post_vote_up( $post_id = 0,$user_id = 0,$vote = null){
 
-    global $wpdb;
-    $tbl_votes_up = $wpdb->prefix . "votes_up";
-    $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-    $pay_vote_cred = $row_votes_up['votes_up_cred'];
-    $my_cred_enabled = $row_votes_up['choice'];
+    if(!$user_id) $user_id = get_current_user_id();
+    $user_creds = get_user_meta($user_id, 'mycred_default', true);
+
+    $topic = get_post_custom();
+    $forum_id = $topic['_bbp_forum_id'][0];
+
+    $forum = get_post_meta(8);
+    $pay_vote = $forum['_pay_vote'][0];
+    if($pay_vote != 0) {
+        $cost_vote = $forum['_cost_vote'][0];
+    }
+
 
     //check vote value
     if (is_bool($vote) === false){
@@ -99,133 +112,146 @@ function do_post_vote_up( $post_id = 0,$user_id = 0,$vote = null){
     }
     $voteplus = $vote;
 
-    if(!$user_id) $user_id = get_current_user_id();
-
   //insert new vote
-    if($my_cred_enabled == 0){
+    if($pay_vote == 0){
         return;
     }
     else {
+      /*  if ( $user_creds < $cost_vote) {
+            return new WP_Error( 'vote_is_not_bool', __( 'Проверка количества кредов', 'bbpvotes' ));
+            add_filter('bbpvotes_get_vote_down_link', 'vote_down');
+        }*/
         if ($voteplus) {
             if (!mycred_exclude_user($user_id)) {
+                return new WP_Error( 'vote_is_not_bool', __( ' Добавление кредов', 'bbpvotes' ));
                 // Add points and save the current year as ref_id
-                mycred_add('vote_up', $user_id, $pay_vote_cred, 'Vote_up', date('y'));
+                mycred_add('vote_up', $user_id, $cost_vote, 'Vote_up', date('y'));
             }
         }
         else {
             if (!mycred_exclude_user($user_id)) {
+                return new WP_Error( 'vote_is_not_bool', __( 'Снятие кредов', 'bbpvotes' ));
                 // remove points and save the current year as ref_id
-                mycred_add('vote_down', $user_id, 0 - $pay_vote_cred, 'Vote_down', date('y'));
+                mycred_add('vote_down', $user_id, 0 - $cost_vote, 'Vote_down', date('y'));
             }
         }
     }
 }
 
-
+//function vote_down(){return false;}
 
 add_action('init', 'forbid_vote_down');
 function forbid_vote_down()
 {
-    global $wpdb;
-    $tbl_votes_up = $wpdb->prefix . "votes_up";
-    $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-    $pay_vote_cred = $row_votes_up['votes_up_cred'];
-    $my_cred_enabled = $row_votes_up['choice'];
+   // $topic = get_post_custom();
+   // $forum_id = $topic['_bbp_forum_id'][0];
+    $forum_id = $_POST['bbp_forum_id'];
 
-    $user_id = get_current_user_id();
-    $user_creds = get_user_meta($user_id, 'mycred_default', true);
-
-    //cкрыть ссылку
-    if($my_cred_enabled == 0){
-        return;
+    $forum = get_post_meta($forum_id);
+    $qwerty = $forum['_pay_vote'][0];
+    $pay_vote = $forum['_pay_vote'][0];
+    if($pay_vote != 0) {
+        $cost_vote = $forum['_cost_vote'][0];
     }
-    else {
-        if ( $user_creds < $pay_vote_cred) {
-            add_filter('bbpvotes_get_vote_down_link', 'vote_down');
-        }
-    }
-}
-
-function vote_down(){return false;}
-
-
-//payment of a message when a new topic
-function remove_creds_for_topic() {
-    global $wpdb;
-    $tbl_votes_up = $wpdb->prefix . "votes_up";
-    $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-    $pay_message = $row_votes_up['Pay_message'];
-    $pay_vote_cred = $row_votes_up['pay_vote_cred'];
-
-    $user_id = get_current_user_id();
-
-    if($pay_message == 0){
-        return;
-    }
-    else {
-            if (!mycred_exclude_user($user_id)) {
-                // remove points and save the current year as ref_id
-                mycred_add('vote_down', $user_id, 0 - $pay_vote_cred, 'Pay for messaage', date('y'));
-            }
-    }
-}
-
-add_action('init', 'pay_for_topic');
-function pay_for_topic(){
-    if (isset($_POST) && $_POST['bbp_topic_content'] != '') {
-        global $wpdb;
-        $tbl_votes_up = $wpdb->prefix . "votes_up";
-        $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-        $pay_vote_cred = $row_votes_up['pay_vote_cred'];
 
         $user_id = get_current_user_id();
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
 
-        if ($user_creds < $pay_vote_cred) {
-            bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: You have not enough points to post a topic!', 'bbpress'));
+        //cкрыть ссылку
+        if ($pay_vote == 0) {
             return;
         } else {
-            add_action('bbp_new_topic', 'remove_creds_for_topic');
+            if ($user_creds < $cost_vote) {
+                add_filter('bbpvotes_get_vote_down_link', 'vote_down');
+            }
+        }
+
+}
+
+function vote_down(){return false;}
+
+//надпись над темой \/
+function theme_before_topic() {
+
+    $query = get_post_custom();
+    $pay_forum = $query['_pay_forum'][0];
+    $cost_forum = $query['_cost_forum'][0];
+
+    $message_free = 'Создание темы в этом форуме свободное.';
+    $message_pay = 'Создание темы в этом форуме платное.  Стоит ' . $cost_forum . ' кредов';
+
+    if($pay_forum == 1) {
+        if ($cost_forum == 0) {
+            include('votes_up_message_free.phtml');
+        } else {
+            include('votes_up_message_pay.phtml');
         }
     }
+    else{
+
+        include('votes_up_message_free.phtml');
+    }
+
 }
 
-//payment of a reply
-function remove_creds_for_reply() {
+//снятие кредов за создание темы в выбранном форуме   \/
+function pay_for_topic(){
+    if (isset($_POST) && $_POST['bbp_topic_content'] != '') {
 
-    global $wpdb;
-    $tbl_votes_up = $wpdb->prefix . "votes_up";
-    $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-    $pay_message = $row_votes_up['Pay_message'];
-    $pay_vote_cred = $row_votes_up['pay_vote_cred'];
-    $pay_reply = $row_votes_up['Pay_reply'];
+        $forum_id = $_POST['bbp_forum_id'];
+        $user_id = get_current_user_id();
 
-    $user_id = get_current_user_id();
+        $user_creds = get_user_meta($user_id, 'mycred_default', true);
+        $query = get_post_meta($forum_id);
+        $pay_forum = $query['_pay_forum'][0];
+        $cost_forum = $query['_cost_forum'][0];
 
-    if($pay_message == 1 && $pay_reply == 1) {
-
-            if (!mycred_exclude_user($user_id)) {
-                // remove points and save the current year as ref_id
-                mycred_add('vote_down', $user_id, 0 - $pay_vote_cred, 'Pay for reply', date('y'));
+        if ($pay_forum != 0) {
+            if ($user_creds < $cost_forum) {
+                bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: У Вас недостаточно кредов, чтобы создать тему!', 'bbpress'));
+                return;
+            } else {
+                add_action('bbp_new_topic', 'remove_creds_for_topic');
             }
+       }
+        else {
+            add_action('bbp_new_topic', 'remove_creds_for_topic');
+       }
     }
 }
 
-add_action('init', 'pay_for_reply');
+function remove_creds_for_topic() {
+    $user_id = get_current_user_id();
+    $forum_id = $_POST['bbp_forum_id'];
+
+    $query = get_post_meta($forum_id);
+    $pay_forum = $query['_pay_forum'][0];
+    $cost_forum = $query['_cost_forum'][0];
+
+    if ($pay_forum == 0) {
+        return;
+    } else {
+        if (!mycred_exclude_user($user_id)) {
+            // remove points and save the current year as ref_id
+            mycred_add('vote_down', $user_id, 0 - $cost_forum, 'Pay for messaage', date('y'));
+        }
+    }
+
+}
+
+//снятие кредов за создание ответа  \/
 function pay_for_reply(){
     if (isset($_POST) && $_POST['bbp_reply_content'] != '') {
-
-        global $wpdb;
-        $tbl_votes_up = $wpdb->prefix . "votes_up";
-        $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-        $pay_vote_cred = $row_votes_up['pay_vote_cred'];
-        $pay_reply = $row_votes_up['Pay_reply'];
-
+        $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
-        $user_creds = get_user_meta( $user_id, 'mycred_default', true );
 
-        if($user_creds < $pay_vote_cred && $pay_reply == 1 ) {
-            bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>ERROR</strong>: You have not enough points to reply!', 'bbpress' ) );
+        $user_creds = get_user_meta( $user_id, 'mycred_default', true );
+        $query = get_post_meta($topic_id);
+        $pay_reply = $query['_pay_reply'][0];
+        $cost_reply = $query['_cost_reply'][0];
+
+        if($user_creds < $cost_reply && $pay_reply != 0) {
+            bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>ERROR</strong>: У Вас недостаточно кредов, чтобы ответить в этой теме!', 'bbpress' ) );
             return;
         }
         else {
@@ -234,46 +260,49 @@ function pay_for_reply(){
     }
 }
 
+function remove_creds_for_reply() {
 
+    $topic_id = $_POST['bbp_topic_id'];
+    $user_id = get_current_user_id();
 
-// Add custom fields to bbpress reply on front end
-add_action( 'bbp_theme_before_reply_form_notices', 'theme_before_reply' );
-// Add custom fields to bbpress topics on front end
-add_action ( 'bbp_theme_before_topic_form_notices', 'theme_before_topic');
+    $query = get_post_meta($topic_id);
+    $pay_reply = $query['_pay_reply'][0];
+    $cost_reply = $query['_cost_reply'][0];
 
-function theme_before_topic() {
-
-    global $wpdb;
-    $tbl_votes_up = $wpdb->prefix . "votes_up";
-    $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-    $pay_message = $row_votes_up['Pay_message'];
-    $pay_vote_cred = $row_votes_up['pay_vote_cred'];
-
-    $message_free = 'Message in this forum is free.';
-    $message_pay = 'Message in this forum paid. It is worth ' . $pay_vote_cred . ' creds';
-
-    if($pay_message == 0 ) {
-        include('votes_up_message_free.phtml');
-    }
-    else{
-        include('votes_up_message_pay.phtml');
+    if( $pay_reply != 0) {
+        if (!mycred_exclude_user($user_id)) {
+            // remove points and save the current year as ref_id
+            mycred_add('vote_down', $user_id, 0 - $cost_reply, 'Pay for reply', date('y'));
+        }
+    }else{
+        return;
     }
 }
 
+//надпись над ответом   \/
 function theme_before_reply() {
 
-    global $wpdb;
-    $tbl_votes_up = $wpdb->prefix . "votes_up";
-    $row_votes_up = $wpdb->get_row("SELECT * FROM $tbl_votes_up where id = 1", ARRAY_A);
-    $pay_message = $row_votes_up['Pay_message'];
-    $pay_vote_cred = $row_votes_up['pay_vote_cred'];
-    $pay_reply = $row_votes_up['Pay_reply'];
+    $query = get_post_custom();
+    $pay_reply = $query['_pay_reply'][0];
+    $cost_reply = $query['_cost_reply'][0];
 
-    $reply_free = 'Reply in this forum is free.';
-    $reply_pay = 'Reply in this forum paid. It is worth ' . $pay_vote_cred . ' creds';
+   // echo '<pre>';
+    //    print_r($query);
+   // echo '<pre>';
+   // $forum_id = $query['_bbp_forum_id'][0];
+   // echo 'fgdfdfgd'.$forum_id.'<br/>';
 
-    if($pay_message == 1 && $pay_reply == 1){
-        include('votes_up_reply_pay.phtml');
+
+    $reply_free = 'Ответ в этой теме свободный.';
+    $reply_pay = 'Ответ в этой теме платный. Стоит ' . $cost_reply . ' кредов';
+
+    if($pay_reply == 1){
+        if($cost_reply == 0){
+            include('votes_up_reply_free.phtml');
+        }
+        else{
+            include('votes_up_reply_pay.phtml');
+        }
     }
     else{
         include('votes_up_reply_free.phtml');
