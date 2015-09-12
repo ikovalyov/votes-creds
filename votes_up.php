@@ -21,7 +21,7 @@ add_action ( 'bbp_theme_before_topic_form_notices', 'theme_before_topic');
 add_action('init', 'pay_for_topic');
 add_action('init', 'pay_for_reply');
 //Add creds for vote
-add_action('bbpvotes_do_post_vote', 'do_post_vote_up',10,3);
+add_action('bbpvotes_do_post_vote', 'do_post_vote_up',10,1);
 
 // функция добавления чекбокса в свойства форума    \/
 function add_pay_topic() {
@@ -94,27 +94,17 @@ function add_reply_attributes( $post_id ) {
 function do_post_vote_up( $post_id = 0,$user_id = 0,$vote = null){
 
     if(!$user_id) $user_id = get_current_user_id();
-    $topic_id = $_POST['bbp_topic_id'];
-
     $user_creds = get_user_meta($user_id, 'mycred_default', true);
-    $query = get_post_meta($topic_id);
 
-    foreach( $query as $key => $pay){
-        if($key == '_pay_vote') {
-            foreach ($pay as $key => $value) {
-                $pay_vote = $value;
-            }
-        }
-        if($key == '_cost_vote') {
-            foreach ($pay as $key => $value) {
-                $cost_vote = $value;
-            }
-        }
+    $topic = get_post_custom();
+    $forum_id = $topic['_bbp_forum_id'][0];
+
+    $forum = get_post_meta(8);
+    $pay_vote = $forum['_pay_vote'][0];
+    if($pay_vote != 0) {
+        $cost_vote = $forum['_cost_vote'][0];
     }
 
-    echo '<pre>';
-         print_r($query);
-    echo '<pre>';
 
     //check vote value
     if (is_bool($vote) === false){
@@ -127,22 +117,55 @@ function do_post_vote_up( $post_id = 0,$user_id = 0,$vote = null){
         return;
     }
     else {
-        if ( $user_creds < $cost_vote) {
+      /*  if ( $user_creds < $cost_vote) {
+            return new WP_Error( 'vote_is_not_bool', __( 'Проверка количества кредов', 'bbpvotes' ));
             add_filter('bbpvotes_get_vote_down_link', 'vote_down');
-        }
+        }*/
         if ($voteplus) {
             if (!mycred_exclude_user($user_id)) {
+                return new WP_Error( 'vote_is_not_bool', __( ' Добавление кредов', 'bbpvotes' ));
                 // Add points and save the current year as ref_id
                 mycred_add('vote_up', $user_id, $cost_vote, 'Vote_up', date('y'));
             }
         }
         else {
             if (!mycred_exclude_user($user_id)) {
+                return new WP_Error( 'vote_is_not_bool', __( 'Снятие кредов', 'bbpvotes' ));
                 // remove points and save the current year as ref_id
                 mycred_add('vote_down', $user_id, 0 - $cost_vote, 'Vote_down', date('y'));
             }
         }
     }
+}
+
+//function vote_down(){return false;}
+
+add_action('init', 'forbid_vote_down');
+function forbid_vote_down()
+{
+   // $topic = get_post_custom();
+   // $forum_id = $topic['_bbp_forum_id'][0];
+    $forum_id = $_POST['bbp_forum_id'];
+
+    $forum = get_post_meta($forum_id);
+    $qwerty = $forum['_pay_vote'][0];
+    $pay_vote = $forum['_pay_vote'][0];
+    if($pay_vote != 0) {
+        $cost_vote = $forum['_cost_vote'][0];
+    }
+
+        $user_id = get_current_user_id();
+        $user_creds = get_user_meta($user_id, 'mycred_default', true);
+
+        //cкрыть ссылку
+        if ($pay_vote == 0) {
+            return;
+        } else {
+            if ($user_creds < $cost_vote) {
+                add_filter('bbpvotes_get_vote_down_link', 'vote_down');
+            }
+        }
+
 }
 
 function vote_down(){return false;}
@@ -151,18 +174,8 @@ function vote_down(){return false;}
 function theme_before_topic() {
 
     $query = get_post_custom();
-    foreach( $query as $key => $pay){
-        if($key == '_pay_forum') {
-            foreach ($pay as $key => $value) {
-                $pay_forum = $value;
-            }
-        }
-        if($key == '_cost_forum') {
-            foreach ($pay as $key => $value) {
-                $cost_forum = $value;
-            }
-        }
-    }
+    $pay_forum = $query['_pay_forum'][0];
+    $cost_forum = $query['_cost_forum'][0];
 
     $message_free = 'Создание темы в этом форуме свободное.';
     $message_pay = 'Создание темы в этом форуме платное.  Стоит ' . $cost_forum . ' кредов';
@@ -190,18 +203,8 @@ function pay_for_topic(){
 
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
         $query = get_post_meta($forum_id);
-        foreach( $query as $key => $pay){
-            if($key == '_pay_forum') {
-                foreach ($pay as $key => $value) {
-                    $pay_forum = $value;
-                }
-            }
-            if($key == '_cost_forum') {
-                foreach ($pay as $key => $value) {
-                    $cost_forum = $value;
-                }
-            }
-        }
+        $pay_forum = $query['_pay_forum'][0];
+        $cost_forum = $query['_cost_forum'][0];
 
         if ($pay_forum != 0) {
             if ($user_creds < $cost_forum) {
@@ -212,9 +215,6 @@ function pay_for_topic(){
             }
        }
         else {
-         /*   echo '<pre>';
-                 print_r($query);
-            echo '<pre>';*/
             add_action('bbp_new_topic', 'remove_creds_for_topic');
        }
     }
@@ -225,18 +225,8 @@ function remove_creds_for_topic() {
     $forum_id = $_POST['bbp_forum_id'];
 
     $query = get_post_meta($forum_id);
-    foreach( $query as $key => $pay){
-        if($key == '_pay_forum') {
-            foreach ($pay as $key => $value) {
-                $pay_forum = $value;
-            }
-        }
-        if($key == '_cost_forum') {
-            foreach ($pay as $key => $value) {
-                $cost_forum = $value;
-            }
-        }
-    }
+    $pay_forum = $query['_pay_forum'][0];
+    $cost_forum = $query['_cost_forum'][0];
 
     if ($pay_forum == 0) {
         return;
@@ -257,18 +247,8 @@ function pay_for_reply(){
 
         $user_creds = get_user_meta( $user_id, 'mycred_default', true );
         $query = get_post_meta($topic_id);
-        foreach( $query as $key => $pay){
-            if($key == '_pay_reply') {
-                foreach ($pay as $key => $value) {
-                    $pay_reply = $value;
-                }
-            }
-            if($key == '_cost_reply') {
-                foreach ($pay as $key => $value) {
-                    $cost_reply = $value;
-                }
-            }
-        }
+        $pay_reply = $query['_pay_reply'][0];
+        $cost_reply = $query['_cost_reply'][0];
 
         if($user_creds < $cost_reply && $pay_reply != 0) {
             bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>ERROR</strong>: У Вас недостаточно кредов, чтобы ответить в этой теме!', 'bbpress' ) );
@@ -286,18 +266,8 @@ function remove_creds_for_reply() {
     $user_id = get_current_user_id();
 
     $query = get_post_meta($topic_id);
-    foreach( $query as $key => $pay){
-        if($key == '_pay_reply') {
-            foreach ($pay as $key => $value) {
-                $pay_reply = $value;
-            }
-        }
-        if($key == '_cost_reply') {
-            foreach ($pay as $key => $value) {
-                $cost_reply = $value;
-            }
-        }
-    }
+    $pay_reply = $query['_pay_reply'][0];
+    $cost_reply = $query['_cost_reply'][0];
 
     if( $pay_reply != 0) {
         if (!mycred_exclude_user($user_id)) {
@@ -313,18 +283,15 @@ function remove_creds_for_reply() {
 function theme_before_reply() {
 
     $query = get_post_custom();
-    foreach( $query as $key => $pay){
-        if($key == '_pay_reply') {
-            foreach ($pay as $key => $value) {
-                $pay_reply = $value;
-            }
-        }
-        if($key == '_cost_reply') {
-            foreach ($pay as $key => $value) {
-                $cost_reply = $value;
-            }
-        }
-    }
+    $pay_reply = $query['_pay_reply'][0];
+    $cost_reply = $query['_cost_reply'][0];
+
+   // echo '<pre>';
+    //    print_r($query);
+   // echo '<pre>';
+   // $forum_id = $query['_bbp_forum_id'][0];
+   // echo 'fgdfdfgd'.$forum_id.'<br/>';
+
 
     $reply_free = 'Ответ в этой теме свободный.';
     $reply_pay = 'Ответ в этой теме платный. Стоит ' . $cost_reply . ' кредов';
