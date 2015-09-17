@@ -117,34 +117,35 @@ function add_reply_attributes( $post_id ) {
  * @param type $user_id
  *
  */
-function do_post_vote_up( $post_id = 127, $user_id = 0,$vote = null){
-    //check vote value
-    if (is_bool($vote) === false){
-        return new WP_Error( 'vote_is_not_bool', __( 'Vote is not a boolean', 'bbpvotes' ));
-    }
+function do_post_vote_up( $post_id, $user_id, $vote){
+
     $voteplus = $vote;
+    $user_creds = get_user_meta($user_id, 'mycred_default', true);
 
-    if(!$user_id) {
-        $user_id = get_current_user_id();
-       // $user_creds = get_user_meta($user_id, 'mycred_default', true);
-    }
-
-    if (!$post = get_post( $post_id)){
+    if (!$post = get_post( $post_id, ARRAY_A)){
         return false;
     }
 
-    $forum_id = $post->post_parent;
-    $forum = get_post_meta($forum_id);
+    $post_type = $post['post_type'];
+    if($post_type == 'topic'){
+        $forum_id = $post['post_parent'];
+        $forum = get_post_meta($forum_id);
+    }
+    elseif($post_type == 'reply'){
+        $topic_id = $post['post_parent'];
+        $post = get_post( $topic_id, ARRAY_A);
+        $forum_id = $post['post_parent'];
+        $forum = get_post_meta($forum_id);
+    }
 
     $pay_vote = $forum['_pay_vote'][0];
-    $pay_vote = intval($pay_vote);
+    $pay_vote = $pay_vote;
 
-    if($pay_vote === 0){
+    if($pay_vote == 0){
         return;
     }
-    else if($pay_vote === 1){
+    else if($pay_vote == 1){
         $cost_vote = $forum['_cost_vote'][0];
-        $cost_vote = intval($cost_vote);
     }
 
     //insert new vote
@@ -155,6 +156,9 @@ function do_post_vote_up( $post_id = 127, $user_id = 0,$vote = null){
         }
     }
     else {
+        if ($user_creds < $cost_vote) {
+            add_filter('bbpvotes_get_vote_down_link', 'vote_down');
+        }
         if (!mycred_exclude_user($user_id)) {
             // remove points and save the current year as ref_id
             mycred_add('vote_down', $user_id, 0 - $cost_vote, 'Vote_down', date('y'));
@@ -166,23 +170,31 @@ function do_post_vote_up( $post_id = 127, $user_id = 0,$vote = null){
 // function to forbid vote down ----------------------
 function forbid_vote_down($post_id)
 {
-    if (!$post = get_post( $post_id )){
+    if (!$post =  get_post( $post_id, ARRAY_A)){
         return false;
     }
-    $forum_id = $post->post_parent;
-    $forum = get_post_meta($forum_id);
-    $pay_vote = $forum['_pay_vote'][0];
-    $pay_vote = intval($pay_vote);
-    if($pay_vote === 0){
-        return;
+    $post_type = $post['post_type'];
+    if($post_type == 'topic'){
+        $forum_id = $post['post_parent'];
+        $forum = get_post_meta($forum_id);
     }
-    else if($pay_vote === 1){
-        $cost_vote = $forum['_cost_vote'][0];
-        $cost_vote = intval($cost_vote);
+    elseif($post_type == 'reply'){
+        $topic_id = $post['post_parent'];
+        $post = get_post( $topic_id, ARRAY_A);
+        $forum_id = $post['post_parent'];
+        $forum = get_post_meta($forum_id);
     }
 
-   // $pay_vote = 1;
-    //$cost_vote = 50;
+    $pay_vote = $forum['_pay_vote'][0];
+    $pay_vote = $pay_vote;
+
+    if($pay_vote == 0){
+        return;
+    }
+    else if($pay_vote == 1){
+        $cost_vote = $forum['_cost_vote'][0];
+    }
+
     $user_id = get_current_user_id();
     $user_creds = get_user_meta($user_id, 'mycred_default', true);
 
@@ -190,8 +202,6 @@ function forbid_vote_down($post_id)
         if ($user_creds < $cost_vote) {
             add_filter('bbpvotes_get_vote_down_link', 'vote_down');
         }
-
-
 }
 
 function vote_down(){
@@ -209,6 +219,8 @@ function theme_before_topic() {
 
     $message_free = 'Creating topics in this forum is free.';
     $message_pay = 'Creating topics in this forum pay.  It is worth ' . $cost_forum . ' creds';
+
+   // phpinfo();
 
     if($pay_forum == 1) {
         if ($cost_forum == 0) {
