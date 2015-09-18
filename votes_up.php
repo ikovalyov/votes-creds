@@ -14,14 +14,12 @@ add_action( 'bbp_topic_metabox', 'add_pay_reply');
 // Hook for adding  attributes
 add_action( 'save_post', 'add_forum_attributes' );
 add_action( 'save_post', 'add_reply_attributes' );
-// Hook for add custom fields to bbpress topics and replyes on front end
+// Hook for add custom fields to bbpress topics and replies on front end
 add_action( 'bbp_theme_before_reply_form_notices', 'theme_before_reply' );
 add_action( 'bbp_theme_before_topic_form_notices', 'theme_before_topic');
 // Hook for remove creds
 add_action( 'init', 'pay_for_topic');
 add_action( 'init', 'pay_for_reply');
-// Hook for forbid vote down
-add_action( 'init', 'forbid_vote_down');
 // Hook for add creds for vote
 add_action( 'bbpvotes_do_post_vote', 'do_post_vote_up',10,3);
 
@@ -120,23 +118,27 @@ function add_reply_attributes( $post_id ) {
 function do_post_vote_up( $post_id, $user_id, $vote){
 
     $voteplus = $vote;
-    $user_creds = get_user_meta($user_id, 'mycred_default', true);
-
-    if (!$post = get_post( $post_id, ARRAY_A)){
+    $author_id = 0;
+    if (!$post = get_post( $post_id)){
         return false;
     }
 
-    $post_type = $post['post_type'];
+    $post_type = $post->post_type;
     if($post_type == 'topic'){
-        $forum_id = $post['post_parent'];
+        $author_id = $post->post_author;
+        $forum_id = $post->post_parent;
         $forum = get_post_meta($forum_id);
     }
     elseif($post_type == 'reply'){
-        $topic_id = $post['post_parent'];
-        $post = get_post( $topic_id, ARRAY_A);
-        $forum_id = $post['post_parent'];
+        $author_id = $post->post_author;
+        $topic_id = $post->post_parent;
+        $post = get_post( $topic_id);
+        $forum_id = $post->post_parent;
         $forum = get_post_meta($forum_id);
     }
+
+    // get usermeta to forbid user create topics and replies
+   // $user_creds = get_user_meta($author_id, 'mycred_default', true);
 
     $pay_vote = $forum['_pay_vote'][0];
     $pay_vote = $pay_vote;
@@ -152,60 +154,15 @@ function do_post_vote_up( $post_id, $user_id, $vote){
     if ($voteplus) {
         if (!mycred_exclude_user($user_id)) {
             // Add points and save the current year as ref_id
-            mycred_add('vote_up', $user_id, $cost_vote, 'Vote_up', date('y'));
+            mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', date('y'));
         }
     }
-    else {
-        if ($user_creds < $cost_vote) {
-            add_filter('bbpvotes_get_vote_down_link', 'vote_down');
-        }
+    else{
         if (!mycred_exclude_user($user_id)) {
             // remove points and save the current year as ref_id
-            mycred_add('vote_down', $user_id, 0 - $cost_vote, 'Vote_down', date('y'));
+            mycred_add('vote_down', $author_id, 0 - $cost_vote, 'Vote_down', date('y'));
         }
     }
-
-}
-
-// function to forbid vote down ----------------------
-function forbid_vote_down($post_id)
-{
-    if (!$post =  get_post( $post_id, ARRAY_A)){
-        return false;
-    }
-    $post_type = $post['post_type'];
-    if($post_type == 'topic'){
-        $forum_id = $post['post_parent'];
-        $forum = get_post_meta($forum_id);
-    }
-    elseif($post_type == 'reply'){
-        $topic_id = $post['post_parent'];
-        $post = get_post( $topic_id, ARRAY_A);
-        $forum_id = $post['post_parent'];
-        $forum = get_post_meta($forum_id);
-    }
-
-    $pay_vote = $forum['_pay_vote'][0];
-    $pay_vote = $pay_vote;
-
-    if($pay_vote == 0){
-        return;
-    }
-    else if($pay_vote == 1){
-        $cost_vote = $forum['_cost_vote'][0];
-    }
-
-    $user_id = get_current_user_id();
-    $user_creds = get_user_meta($user_id, 'mycred_default', true);
-
-    //hide button
-        if ($user_creds < $cost_vote) {
-            add_filter('bbpvotes_get_vote_down_link', 'vote_down');
-        }
-}
-
-function vote_down(){
-    return false;
 }
 
 /**
@@ -219,8 +176,6 @@ function theme_before_topic() {
 
     $message_free = 'Creating topics in this forum is free.';
     $message_pay = 'Creating topics in this forum pay.  It is worth ' . $cost_forum . ' creds';
-
-   // phpinfo();
 
     if($pay_forum == 1) {
         if ($cost_forum == 0) {
@@ -330,8 +285,6 @@ function remove_creds_for_reply() {
  */
 function theme_before_reply() {
 
-    global $post;
-
     $query = get_post_custom();
     $pay_reply = $query['_pay_reply'][0];
     $cost_reply = $query['_cost_reply'][0];
@@ -352,9 +305,4 @@ function theme_before_reply() {
     }
 }
 
-
-/*   echo '<pre>';
-print_r($query);
-   echo '<pre>';
-*/
 ?>
