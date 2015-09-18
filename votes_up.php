@@ -137,9 +137,6 @@ function do_post_vote_up( $post_id, $user_id, $vote){
         $forum = get_post_meta($forum_id);
     }
 
-    // get usermeta to forbid user create topics and replies
-   // $user_creds = get_user_meta($author_id, 'mycred_default', true);
-
     $pay_vote = $forum['_pay_vote'][0];
     $pay_vote = $pay_vote;
 
@@ -207,7 +204,7 @@ function pay_for_topic(){
 
         if ($pay_forum != 0) {
             if ($user_creds < $cost_forum) {
-                bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: You has not enough points to post a topic!', 'bbpress'));
+                bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: You has not enough creds to post a topic!', 'bbpress'));
                 return;
             } else {
                 add_action('bbp_new_topic', 'remove_creds_for_topic');
@@ -252,7 +249,7 @@ function pay_for_reply(){
         $cost_reply = $query['_cost_reply'][0];
 
         if($user_creds < $cost_reply && $pay_reply != 0) {
-            bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>ERROR</strong>: You has not enough points to reply!', 'bbpress' ) );
+            bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>ERROR</strong>: You has not enough creds to reply!', 'bbpress' ) );
             return;
         }
         else {
