@@ -166,13 +166,14 @@ function do_post_vote_up($post_id, $user_id, $vote)
  */
 function theme_before_topic()
 {
-
     $query = get_post_custom();
     $pay_forum = $query['_pay_forum'][0];
     $cost_forum = $query['_cost_forum'][0];
+    //get  myCRED_Settings
+    $mycred = mycred();
 
     $message_free = 'Creating topics in this forum is free.';
-    $message_pay = 'Creating topics in this forum pay.  It is worth ' . $cost_forum . ' points';
+    $message_pay = 'Creating topics in this forum pay.  It is worth ' . $cost_forum . $mycred->plural();
 
     if ($pay_forum == 1) {
         if ($cost_forum == 0) {
@@ -196,6 +197,8 @@ function pay_for_topic()
 
         $forum_id = $_POST['bbp_forum_id'];
         $user_id = get_current_user_id();
+        //get  myCRED_Settings
+        $mycred = mycred();
 
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
         $query = get_post_meta($forum_id);
@@ -204,7 +207,7 @@ function pay_for_topic()
 
         if ($pay_forum != 0) {
             if ($user_creds < $cost_forum) {
-                bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: You has not enough points to post a topic!', 'bbpress'));
+                bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: You have not enough '. $mycred->plural() .' to post a topic!', 'bbpress'));
                 return;
             } else {
                 add_action('bbp_new_topic', 'remove_creds_for_topic');
@@ -243,6 +246,8 @@ function pay_for_reply()
     if (isset($_POST) && $_POST['bbp_reply_content'] != '') {
         $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
+        //get  myCRED_Settings
+        $mycred = mycred();
 
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
         $query = get_post_meta($topic_id);
@@ -250,7 +255,7 @@ function pay_for_reply()
         $cost_reply = $query['_cost_reply'][0];
 
         if ($user_creds < $cost_reply && $pay_reply != 0) {
-            bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: You has not enough points to reply!', 'bbpress'));
+            bbp_add_error('bbp_new_reply_nonce', __('<strong>ERROR</strong>: You have not enough '. $mycred->plural() .'to reply!', 'bbpress'));
             return;
         } else {
             add_action('bbp_new_reply', 'remove_creds_for_reply');
@@ -283,13 +288,14 @@ function remove_creds_for_reply()
  */
 function theme_before_reply()
 {
-
     $query = get_post_custom();
     $pay_reply = $query['_pay_reply'][0];
     $cost_reply = $query['_cost_reply'][0];
+    //get  myCRED_Settings
+    $mycred = mycred();
 
     $reply_free = __('Reply in this forum is free.');
-    $reply_pay = __('Reply in this forum paid. It is worth ') . $cost_reply . __(' points');
+    $reply_pay = __('Reply in this forum paid. It is worth ') . $cost_reply . $mycred->plural();
 
     if ($pay_reply == 1) {
         if ($cost_reply == 0) {
