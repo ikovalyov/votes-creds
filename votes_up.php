@@ -127,38 +127,39 @@ function do_post_vote_up($post_id, $user_id, $vote)
 
     if (mycred_exclude_user($user_id)) {
         return;
-    } else {
-        $post_type = $post->post_type;
-        if ($post_type == 'topic') {
-            $author_id = $post->post_author;
-            $forum_id = $post->post_parent;
-            $forum = get_post_meta($forum_id);
-        } elseif ($post_type == 'reply') {
-            $author_id = $post->post_author;
-            $topic_id = $post->post_parent;
-            $post = get_post($topic_id);
-            $forum_id = $post->post_parent;
-            $forum = get_post_meta($forum_id);
-        }
-
-        $pay_vote = $forum['_pay_vote'][0];
-        $pay_vote = $pay_vote;
-
-        if ($pay_vote == 0) {
-            return;
-        } else if ($pay_vote == 1) {
-            $cost_vote = $forum['_cost_vote'][0];
-        }
-
-        //insert new vote
-        if ($voteplus) {
-            // Add points and save the current year as ref_id
-            mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', date('y'));
-        } else {
-            // remove points and save the current year as ref_id
-            mycred_add('vote_down', $author_id, 0 - $cost_vote, 'Vote_down', date('y'));
-        }
     }
+
+    $post_type = $post->post_type;
+    if ($post_type == 'topic') {
+        $author_id = $post->post_author;
+        $forum_id = $post->post_parent;
+        $forum = get_post_meta($forum_id);
+    } elseif ($post_type == 'reply') {
+        $author_id = $post->post_author;
+        $topic_id = $post->post_parent;
+        $post = get_post($topic_id);
+        $forum_id = $post->post_parent;
+        $forum = get_post_meta($forum_id);
+    }
+
+    $pay_vote = $forum['_pay_vote'][0];
+    $pay_vote = $pay_vote;
+
+    if ($pay_vote == 0) {
+        return;
+    } else if ($pay_vote == 1) {
+        $cost_vote = $forum['_cost_vote'][0];
+    }
+
+    //insert new vote
+    if ($voteplus) {
+        // Add points and save the current year as ref_id
+        mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', date('y'));
+    } else {
+        // remove points and save the current year as ref_id
+        mycred_add('vote_down', $author_id, 0 - $cost_vote, 'Vote_down', date('y'));
+    }
+
 }
 
 /**
@@ -224,21 +225,22 @@ function pay_for_topic()
 function remove_creds_for_topic()
 {
     $user_id = get_current_user_id();
-    if (!mycred_exclude_user($user_id)) {
-        $forum_id = $_POST['bbp_forum_id'];
-        $meta = get_post_meta($forum_id);
-        $pay_forum = $meta['_pay_forum'][0];
-        $cost_forum = $meta['_cost_forum'][0];
-
-        if ($pay_forum == 0) {
-            return;
-        } else {
-            // remove points and save the current year as ref_id
-            mycred_add('vote_down', $user_id, 0 - $cost_forum, 'Pay for messaage', date('y'));
-        }
-    } else {
+    if (mycred_exclude_user($user_id)) {
         return;
     }
+
+    $forum_id = $_POST['bbp_forum_id'];
+    $meta = get_post_meta($forum_id);
+    $pay_forum = $meta['_pay_forum'][0];
+    $cost_forum = $meta['_cost_forum'][0];
+
+    if ($pay_forum == 0) {
+        return;
+    } else {
+        // remove points and save the current year as ref_id
+        mycred_add('vote_down', $user_id, 0 - $cost_forum, 'Pay for messaage', date('y'));
+    }
+
 }
 
 /**
@@ -269,18 +271,18 @@ function pay_for_reply()
 function remove_creds_for_reply()
 {
     $user_id = get_current_user_id();
-    if (!mycred_exclude_user($user_id)) {
-        $topic_id = $_POST['bbp_topic_id'];
-        $query = get_post_meta($topic_id);
-        $pay_reply = $query['_pay_reply'][0];
-        $cost_reply = $query['_cost_reply'][0];
+    if (mycred_exclude_user($user_id)) {
+        return;
+    }
 
-        if ($pay_reply != 0) {
-            // remove points and save the current year as ref_id
-            mycred_add('vote_down', $user_id, 0 - $cost_reply, 'Pay for reply', date('y'));
-        } else {
-            return;
-        }
+    $topic_id = $_POST['bbp_topic_id'];
+    $query = get_post_meta($topic_id);
+    $pay_reply = $query['_pay_reply'][0];
+    $cost_reply = $query['_cost_reply'][0];
+
+    if ($pay_reply != 0) {
+        // remove points and save the current year as ref_id
+        mycred_add('vote_down', $user_id, 0 - $cost_reply, 'Pay for reply', date('y'));
     } else {
         return;
     }
