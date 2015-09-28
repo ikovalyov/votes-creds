@@ -197,8 +197,11 @@ function theme_before_topic()
  */
 function pay_for_topic()
 {
-    if (isset($_POST) && $_POST['bbp_topic_content'] != '') {
-
+    if (isset($_POST)) {
+        if (empty($_POST['bbp_topic_content'])) {
+            return;
+        }
+        
         $forum_id = $_POST['bbp_forum_id'];
         $user_id = get_current_user_id();
         //get  myCRED_Settings
@@ -248,7 +251,11 @@ function remove_creds_for_topic()
  */
 function pay_for_reply()
 {
-    if (isset($_POST) && $_POST['bbp_reply_content'] != '') {
+    if (isset($_POST)) {
+        if (empty($_POST['bbp_reply_content'])) {
+            return;
+        }
+
         $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
         //get  myCRED_Settings
