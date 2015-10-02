@@ -1,0 +1,19 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: alex
+ * Date: 08.09.2015
+ * Time: 16:21
+ */
+?>
+
+<p>
+    <strong class="label"><?php esc_html_e( 'Платныe ответы:', 'bbpress' ); ?></strong>
+    <label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Платныe ответы', 'bbpress' ); ?></label>
+    <input type="checkbox" name="pay_reply"  value="" <?php echo $pay_reply == 1 ? 'checked="checked"' : '';?> />
+</p>
+<p>
+    <strong class="label"><?php esc_html_e( 'Цена:', 'bbpress' ); ?></strong>
+    <label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Цена', 'bbpress' ); ?></label>
+    <input type="text" name="pay_reply_cred" size="8" value="<?php echo $cost_reply; ?>" />
+</p>
