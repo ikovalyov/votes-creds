@@ -37,9 +37,9 @@
 
 <select multiple size="5" name="group[]">
     <?php
-    foreach ($roles_name_arr as $role_name) {
-        $selected = (in_array($role_name, $ar_status)) ? ' selected' : '';
-        echo "<option value='" . $role_name . "'$selected>" . $role_name . "</option>";
+    foreach ($roles as $key=>$values) {
+        $selected = (in_array($key, $ar_status)) ? ' selected' : '';
+        echo "<option value='" . $key . "'$selected>" . $values . "</option>";
     }
     ?>
 </select>

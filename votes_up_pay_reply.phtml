@@ -22,9 +22,9 @@
 
 <select multiple size="5" name="group[]">
     <?php
-    foreach ($user_status as $values) {
-        $selected = (in_array($values,$ar_status))?' selected':'';
-        echo "<option value='" . $values . "'$selected>" . $values . "</option>";
+    foreach ($roles as $key=>$values) {
+        $selected = (in_array($key, $ar_status)) ? ' selected' : '';
+        echo "<option value='" . $key . "'$selected>" . $values . "</option>";
     }
     ?>
 </select>

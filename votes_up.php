@@ -7,7 +7,6 @@ Author: Alex
 Version: 1.0.1
 */
 
-
 // Hook for adding admin menus
 add_action('bbp_forum_metabox', 'add_pay_topic');
 add_action('bbp_topic_metabox', 'add_pay_reply');
@@ -53,16 +52,15 @@ function add_pay_topic()
     }
 
     $obj_roles = new WP_Roles();
-    $roles_name_arr = $obj_roles->get_names();
+    $roles = $obj_roles->role_names;
 
     if (!isset($query['_group'][0])) {
-        $ar_status[0] = wp_roles()->roles['administrator']['name'];
+        $ar_status[0] = 'administrator';
     } else {
         $ar_status = unserialize($query['_group'][0]);
     }
 
     $mycred = mycred();
-
     include("votes_up_pay_forum.phtml");
 }
 
@@ -74,9 +72,12 @@ function add_pay_reply()
     $query = get_post_custom();
     $pay_reply = $query['_pay_reply'][0];
     $cost_reply = $query['_cost_reply'][0];
-    $user_status = array("administrator", "subscriber", "contributor", "author", "editor");
+
+    $obj_roles = new WP_Roles();
+    $roles = $obj_roles->role_names;
+
     if (!isset($query['_group'][0])) {
-        $ar_status = array("administrator");
+        $ar_status[0] = 'administrator';
     } else {
         $ar_status = unserialize($query['_group'][0]);
     }
@@ -111,21 +112,19 @@ function add_forum_attributes($post_id)
     } else {
         $pay_vote_cred = 0;
     }
-    //
+    $status_array = array();
     if (isset($_POST['group'])) {
-        $group = $_POST["group"];
+        foreach ($_POST["group"] as $keys => $values) {
+            array_push($status_array, $values);
+        }
+    } else {
+        return;
     }
-
     // Update the meta field in the database.
     update_post_meta($post_id, '_pay_forum', (isset($_REQUEST['pay_topic'])) ? 1 : 0);
     update_post_meta($post_id, '_cost_forum', $pay_forum_cred);
     update_post_meta($post_id, '_pay_vote', (isset($_REQUEST['vote_up'])) ? 1 : 0);
     update_post_meta($post_id, '_cost_vote', $pay_vote_cred);
-
-    $status_array = array();
-    foreach ($group as $keys => $values) {
-        array_push($status_array, $values);
-    }
     update_post_meta($post_id, '_group', $status_array);
 }
 
@@ -147,17 +146,15 @@ function add_reply_attributes($post_id)
     } else {
         $pay_reply_cred = 0;
     }
-    //
+    $status_array = array();
     if (isset($_POST['group'])) {
-        $group = $_POST["group"];
+        foreach ($_POST['group'] as $keys => $values) {
+            array_push($status_array, $values);
+        }
     }
     // Update the meta field in the database.
     update_post_meta($post_id, '_pay_reply', (isset($_REQUEST['pay_reply'])) ? 1 : 0);
     update_post_meta($post_id, '_cost_reply', $pay_reply_cred);
-    $status_array = array();
-    foreach ($group as $keys => $values) {
-        array_push($status_array, $values);
-    }
     update_post_meta($post_id, '_group', $status_array);
 }
 
@@ -176,7 +173,6 @@ function do_post_vote_up($post_id, $user_id, $vote)
     if (!$post = get_post($post_id)) {
         return false;
     }
-
     if (mycred_exclude_user($user_id)) {
         return;
     }
@@ -202,7 +198,6 @@ function do_post_vote_up($post_id, $user_id, $vote)
     } else if ($pay_vote == 1) {
         $cost_vote = $forum['_cost_vote'][0];
     }
-
     //insert new vote
     if ($voteplus) {
         // Add points and save the current year as ref_id
@@ -225,12 +220,11 @@ function theme_before_topic()
     //get  myCRED_Settings
     $mycred = mycred();
     if ($cost_forum == 1) {
-        $message_pay = __('Creating topics in this forum pay.  It is worth ', 'votes_Up-plugin') . $cost_forum .' '. $mycred->singular();
+        $message_pay = __('Creating topics in this forum pay.  It is worth ', 'votes_Up-plugin') . $cost_forum . ' ' . $mycred->singular();
     } else {
-        $message_pay = __('Creating topics in this forum pay.  It is worth ', 'votes_Up-plugin') . $cost_forum .' '. $mycred->plural();
+        $message_pay = __('Creating topics in this forum pay.  It is worth ', 'votes_Up-plugin') . $cost_forum . ' ' . $mycred->plural();
     }
-
-    if ($pay_forum === 1 && $cost_forum > 0) {
+    if ($pay_forum == 1 && $cost_forum > 0) {
         include('votes_up_message_pay.phtml');
     } else {
         return;
@@ -250,7 +244,6 @@ function pay_for_topic()
 
         $forum_id = $_POST['bbp_forum_id'];
         $user_id = get_current_user_id();
-        $user_level = get_user_meta($user_id, 'wp_user_level', true);
         //get  myCRED_Settings
         $mycred = mycred();
 
@@ -258,22 +251,18 @@ function pay_for_topic()
         $meta = get_post_meta($forum_id);
         $pay_forum = $meta['_pay_forum'][0];
         $cost_forum = $meta['_cost_forum'][0];
-        $user_status = unserialize($meta['_group'][0]);
+        $ar_status = unserialize($meta['_group'][0]);
 
+        $current_user = wp_get_current_user();
+        if (!($current_user instanceof WP_User))
+            return;
+        $roles = $current_user->roles;
+
+        if (!$ar_status) {
+            return;
+        }
         if ($pay_forum != 0) {
-            if ($user_level == 10 && in_array("administrator", $user_status)) {
-                return;
-            }
-            if ($user_level == 0 && in_array("subscriber", $user_status)) {
-                return;
-            }
-            if ($user_level == 1 && in_array("contributor", $user_status)) {
-                return;
-            }
-            if ($user_level == 2 && in_array("author", $user_status)) {
-                return;
-            }
-            if ($user_level == 7 && in_array("editor", $user_status)) {
+            if (in_array($roles[0], $ar_status)) {
                 return;
             } else if ($user_creds < $cost_forum) {
                 bbp_add_error('bbp_new_reply_nonce', sprintf(__('<strong>ERROR</strong>: You have not enough %s to post a topic!', 'votes_Up-plugin'), $mycred->plural()));
@@ -294,7 +283,6 @@ function remove_creds_for_topic()
         return;
     }
 
-
     $forum_id = $_POST['bbp_forum_id'];
     $meta = get_post_meta($forum_id);
     $pay_forum = $meta['_pay_forum'][0];
@@ -305,6 +293,28 @@ function remove_creds_for_topic()
     } else {
         // remove points and save the current year as ref_id
         mycred_add('vote_down', $user_id, 0 - $cost_forum, 'Pay for messaage', date('y'));
+    }
+}
+
+/**
+ * function to add inscription before the reply
+ */
+function theme_before_reply()
+{
+    $query = get_post_custom();
+    $pay_reply = $query['_pay_reply'][0];
+    $cost_reply = $query['_cost_reply'][0];
+    //get  myCRED_Settings
+    $mycred = mycred();
+    if ($cost_reply == 1) {
+        $reply_pay = __('Reply in this forum paid. It is worth ', 'votes_Up-plugin') . $cost_reply . ' ' . $mycred->singular();
+    } else {
+        $reply_pay = __('Reply in this forum paid. It is worth ', 'votes_Up-plugin') . $cost_reply . ' ' . $mycred->plural();
+    }
+    if ($pay_reply == 1 && $cost_reply > 0) {
+        include('votes_up_reply_pay.phtml');
+    } else {
+        return;
     }
 }
 
@@ -320,7 +330,6 @@ function pay_for_reply()
 
         $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
-        $user_level = get_user_meta($user_id, 'wp_user_level', true);
         //get  myCRED_Settings
         $mycred = mycred();
 
@@ -328,21 +337,17 @@ function pay_for_reply()
         $meta = get_post_meta($topic_id);
         $pay_reply = $meta['_pay_reply'][0];
         $cost_reply = $meta['_cost_reply'][0];
-        $user_status = unserialize($meta['_group'][0]);
+        $ar_status = unserialize($meta['_group'][0]);
 
-        if ($user_level == 10 && in_array("administrator", $user_status)) {
+        $current_user = wp_get_current_user();
+        if (!($current_user instanceof WP_User))
+            return;
+        $roles = $current_user->roles;
+
+        if (!$ar_status) {
             return;
         }
-        if ($user_level == 0 && in_array("subscriber", $user_status)) {
-            return;
-        }
-        if ($user_level == 1 && in_array("contributor", $user_status)) {
-            return;
-        }
-        if ($user_level == 2 && in_array("author", $user_status)) {
-            return;
-        }
-        if ($user_level == 7 && in_array("editor", $user_status)) {
+        if (in_array($roles[0], $ar_status)) {
             return;
         } else if ($user_creds < $cost_reply && $pay_reply != 0) {
             bbp_add_error('bbp_new_reply_nonce', sprintf(__('<strong>ERROR</strong>: You have not enough %s to reply!', 'votes_Up-plugin'), $mycred->plural()));
@@ -373,27 +378,5 @@ function remove_creds_for_reply()
     }
 }
 
-/**
- * function to add inscription before the reply
- */
-function theme_before_reply()
-{
-    $query = get_post_custom();
-    $pay_reply = $query['_pay_reply'][0];
-    $cost_reply = $query['_cost_reply'][0];
-    //get  myCRED_Settings
-    $mycred = mycred();
-    if ($cost_reply == 1) {
-        $reply_pay = __('Reply in this forum paid. It is worth ', 'votes_Up-plugin') . $cost_reply .' '. $mycred->singular();
-    } else {
-        $reply_pay = __('Reply in this forum paid. It is worth ', 'votes_Up-plugin') . $cost_reply .' '. $mycred->plural();
-    }
 
-    if ($pay_reply === 1 && $cost_reply > 0) {
-        include('votes_up_reply_pay.phtml');
-    } else {
-        return;
-    }
-}
 
-?>
