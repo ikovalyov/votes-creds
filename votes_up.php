@@ -176,7 +176,6 @@ function do_post_vote_up($post_id, $user_id, $vote)
     if (mycred_exclude_user($user_id)) {
         return;
     }
-
     $post_type = $post->post_type;
     if ($post_type == 'topic') {
         $author_id = $post->post_author;
@@ -189,7 +188,6 @@ function do_post_vote_up($post_id, $user_id, $vote)
         $forum_id = $post->post_parent;
         $forum = get_post_meta($forum_id);
     }
-
     $pay_vote = $forum['_pay_vote'][0];
     $pay_vote = $pay_vote;
 
@@ -229,7 +227,6 @@ function theme_before_topic()
     } else {
         return;
     }
-
 }
 
 /**
@@ -241,7 +238,6 @@ function pay_for_topic()
         if (empty($_POST['bbp_topic_content'])) {
             return;
         }
-
         $forum_id = $_POST['bbp_forum_id'];
         $user_id = get_current_user_id();
         //get  myCRED_Settings
@@ -257,7 +253,6 @@ function pay_for_topic()
         if (!($current_user instanceof WP_User))
             return;
         $roles = $current_user->roles;
-
         if (!$ar_status) {
             return;
         }
@@ -327,7 +322,6 @@ function pay_for_reply()
         if (empty($_POST['bbp_reply_content'])) {
             return;
         }
-
         $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
         //get  myCRED_Settings
@@ -364,7 +358,6 @@ function remove_creds_for_reply()
     if (mycred_exclude_user($user_id)) {
         return;
     }
-
     $topic_id = $_POST['bbp_topic_id'];
     $meta = get_post_meta($topic_id);
     $pay_reply = $meta['_pay_reply'][0];
