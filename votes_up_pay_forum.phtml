@@ -8,27 +8,41 @@
 ?>
 
 <p>
-    <strong class="label"><?php esc_html_e( 'Платныe темы:', 'bbpress' ); ?></strong>
-    <label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Платныe темы', 'bbpress' ); ?></label>
-    <input type="checkbox" name="pay_topic"  value="" <?php echo $pay_forum == 1 ? 'checked="checked"' : '';?> />
+    <strong class="label"><?php _e('Topics fee:', 'votes_Up-plugin'); ?></strong>
+    <input type="checkbox" name="pay_topic" value="" <?php echo $pay_forum == 1 ? 'checked="checked"' : ''; ?> />
 </p>
 <p>
-    <strong class="label"><?php esc_html_e( 'Цена:', 'bbpress' ); ?></strong>
-    <label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Цена', 'bbpress' ); ?></label>
-    <input type="text" name="pay_forum_cred" size="8" value="<?php echo $cost_forum; ?>" />
+    <strong class="label"><?php _e('Price:', 'votes_Up-plugin'); ?></strong>
+    <input type="text" name="pay_forum_cred" size="8" value="<?php echo $cost_forum; ?>"/>
 </p>
 
 <p>
-    <th scope="row"><?php _e('Креды за голосование') ?></th>
-    <br/>
-    <strong class="label"><?php esc_html_e( ' Добавить:', 'bbpress' ); ?></strong>
-    <label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Добавлять креды за голосование', 'bbpress' ); ?></label>
-    <input type="checkbox" name="vote_up"  value="" <?php echo $pay_vote == 1 ? 'checked="checked"' : '';?>/>
+<th scope="row"><?php
+    echo $mycred->plural();
+    _e(' Voting ', 'votes_Up-plugin');
+    _e(' amount', 'votes_Up-plugin') ?></th>
+<br/>
+<strong class="label"><?php _e(' Add:', 'votes_Up-plugin'); ?></strong>
+<input type="checkbox" name="vote_up" value="" <?php echo $pay_vote == 1 ? 'checked="checked"' : ''; ?>/>
 </p>
 <p>
-    <strong class="label"><?php esc_html_e( 'Кол-во:', 'bbpress' ); ?></strong>
-    <label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Кол-во:', 'bbpress' ); ?></label>
-    <input type="text" name="voting_up" size="8" value="<?php echo $cost_vote; ?>" />
+    <strong class="label"><?php _e('Quantity:', 'votes_Up-plugin'); ?></strong>
+    <input type="text" name="voting_up" size="8" value="<?php echo $cost_vote; ?>"/>
+</p>
+
+<p>
+<th scope="row"><?php _e(' Exclude users:', 'votes_Up-plugin') ?></th>
+<br/>
+<strong class="label"><?php _e('', 'votes_Up-plugin'); ?></strong>
+
+<select multiple size="5" name="group[]">
+    <?php
+    foreach ($roles as $key=>$values) {
+        $selected = (in_array($key, $ar_status)) ? ' selected' : '';
+        echo "<option value='" . $key . "'$selected>" . $values . "</option>";
+    }
+    ?>
+</select>
 </p>
 
 
