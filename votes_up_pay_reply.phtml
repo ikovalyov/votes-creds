@@ -8,15 +8,15 @@
 ?>
 
 <p>
-    <strong class="label"><?php _e( 'Pay replies:', 'votes_Up-plugin' ); ?></strong>
+    <strong class="label"><?php _e( 'Reply fee:', 'votes_Up-plugin' ); ?></strong>
     <input type="checkbox" name="pay_reply"  value="" <?php echo $pay_reply == 1 ? 'checked="checked"' : '';?> />
 </p>
 <p>
-    <strong class="label"><?php _e( 'Cost:', 'votes_Up-plugin' ); ?></strong>
+    <strong class="label"><?php _e( 'Price:', 'votes_Up-plugin' ); ?></strong>
     <input type="text" name="pay_reply_cred" size="8" value="<?php echo $cost_reply; ?>" />
 </p>
 <p>
-<th scope="row"><?php echo $mycred->plural(); _e(' for reply do not take from:', 'votes_Up-plugin') ?></th>
+<th scope="row"><?php echo _e(' Exclude users:', 'votes_Up-plugin') ?></th>
 <br/>
 <strong class="label"><?php _e( '', 'votes_Up-plugin' ); ?></strong>
 

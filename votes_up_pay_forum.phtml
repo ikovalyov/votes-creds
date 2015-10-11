@@ -8,35 +8,38 @@
 ?>
 
 <p>
-    <strong class="label"><?php _e( 'Pay topics:', 'votes_Up-plugin' ); ?></strong>
-    <input type="checkbox" name="pay_topic"  value="" <?php echo $pay_forum == 1 ? 'checked="checked"' : '';?> />
+    <strong class="label"><?php _e('Topics fee:', 'votes_Up-plugin'); ?></strong>
+    <input type="checkbox" name="pay_topic" value="" <?php echo $pay_forum == 1 ? 'checked="checked"' : ''; ?> />
 </p>
 <p>
-    <strong class="label"><?php _e( 'Cost:', 'votes_Up-plugin' ); ?></strong>
-    <input type="text" name="pay_forum_cred" size="8" value="<?php echo $cost_forum; ?>" />
-</p>
-
-<p>
-    <th scope="row"><?php echo $mycred->plural(); _e(' for voting', 'votes_Up-plugin') ?></th>
-    <br/>
-    <strong class="label"><?php _e( ' Add:', 'votes_Up-plugin' ); ?></strong>
-    <input type="checkbox" name="vote_up" value="" <?php echo $pay_vote == 1 ? 'checked="checked"' : '';?>/>
-</p>
-<p>
-    <strong class="label"><?php _e( 'Quantity:', 'votes_Up-plugin' ); ?></strong>
-    <input type="text" name="voting_up" size="8" value="<?php echo $cost_vote; ?>" />
+    <strong class="label"><?php _e('Price:', 'votes_Up-plugin'); ?></strong>
+    <input type="text" name="pay_forum_cred" size="8" value="<?php echo $cost_forum; ?>"/>
 </p>
 
 <p>
-<th scope="row"><?php echo $mycred->plural(); _e(' for create do not take from:', 'votes_Up-plugin') ?></th>
+<th scope="row"><?php
+    echo $mycred->plural();
+    _e(' Voting ', 'votes_Up-plugin');
+    _e(' amount', 'votes_Up-plugin') ?></th>
 <br/>
-<strong class="label"><?php _e( '', 'votes_Up-plugin' ); ?></strong>
+<strong class="label"><?php _e(' Add:', 'votes_Up-plugin'); ?></strong>
+<input type="checkbox" name="vote_up" value="" <?php echo $pay_vote == 1 ? 'checked="checked"' : ''; ?>/>
+</p>
+<p>
+    <strong class="label"><?php _e('Quantity:', 'votes_Up-plugin'); ?></strong>
+    <input type="text" name="voting_up" size="8" value="<?php echo $cost_vote; ?>"/>
+</p>
+
+<p>
+<th scope="row"><?php _e(' Exclude users:', 'votes_Up-plugin') ?></th>
+<br/>
+<strong class="label"><?php _e('', 'votes_Up-plugin'); ?></strong>
 
 <select multiple size="5" name="group[]">
     <?php
-    foreach ($user_status as $values) {
-        $selected = (in_array($values,$ar_status))?' selected':'';
-        echo "<option value='" . $values . "'$selected>" . $values . "</option>";
+    foreach ($roles_name_arr as $role_name) {
+        $selected = (in_array($role_name, $ar_status)) ? ' selected' : '';
+        echo "<option value='" . $role_name . "'$selected>" . $role_name . "</option>";
     }
     ?>
 </select>

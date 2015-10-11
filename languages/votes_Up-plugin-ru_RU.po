@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Votes Up v1.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-08 17:06+0300\n"
-"PO-Revision-Date: 2015-10-08 17:10+0300\n"
+"POT-Creation-Date: 2015-10-10 16:35+0300\n"
+"PO-Revision-Date: 2015-10-10 16:36+0300\n"
 "Last-Translator: root <alex_dyak@mail.ru>\n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -24,27 +24,7 @@ msgstr ""
 "X-Poedit-SearchPath-4: votes_up_pay_reply.phtml\n"
 "X-Poedit-SearchPath-5: votes_up_reply_pay.phtml\n"
 
-#: votes_up.php:55
-msgid "administrator"
-msgstr "Администратор"
-
-#: votes_up.php:56
-msgid "subscriber"
-msgstr "Подписчик"
-
-#: votes_up.php:57
-msgid "contributor"
-msgstr "Участник"
-
-#: votes_up.php:58
-msgid "author"
-msgstr "Автор"
-
-#: votes_up.php:59
-msgid "editor"
-msgstr "Редактор"
-
-#: votes_up.php:232 votes_up.php:234
+#: votes_up.php:236 votes_up.php:238
 msgid "Creating topics in this forum pay.  It is worth "
 msgstr "Создание темы в этом форуме платное.  Это стоит "
 
@@ -63,33 +43,69 @@ msgid "Reply in this forum paid. It is worth "
 msgstr "Ответ в этом форуме платный. Это стоит "
 
 #: votes_up_pay_forum.phtml:11
-msgid "Pay topics:"
+msgid "Topics fee:"
 msgstr "Платные темы:"
 
 #: votes_up_pay_forum.phtml:15 votes_up_pay_reply.phtml:15
-msgid "Cost:"
+msgid "Price:"
 msgstr "Цена:"
 
-#: votes_up_pay_forum.phtml:20
-msgid " for voting"
-msgstr " за голосование"
-
 #: votes_up_pay_forum.phtml:22
+msgid " Voting "
+msgstr "  За голосование "
+
+#: votes_up_pay_forum.phtml:23
+msgid " amount"
+msgstr "Количество"
+
+#: votes_up_pay_forum.phtml:25
 msgid " Add:"
 msgstr "Добавить:"
 
-#: votes_up_pay_forum.phtml:26
+#: votes_up_pay_forum.phtml:29
 msgid "Quantity:"
 msgstr "Кол-во:"
 
-#: votes_up_pay_forum.phtml:31
-msgid " for create do not take from:"
-msgstr " за создание не снимать с:"
+#: votes_up_pay_forum.phtml:35 votes_up_pay_reply.phtml:19
+msgid " Exclude users:"
+msgstr " Исключить пользователей:"
 
 #: votes_up_pay_reply.phtml:11
-msgid "Pay replies:"
-msgstr "Платные ответы:"
+msgid "Reply fee:"
+msgstr "Плата за ответ:"
 
-#: votes_up_pay_reply.phtml:19
-msgid " for reply do not take from:"
-msgstr " за ответ  не снимать с:"
+#~ msgid "Pay topics:"
+#~ msgstr "Платные темы:"
+
+#~ msgid "Voting "
+#~ msgstr " За голосование"
+
+#~ msgid " for voting"
+#~ msgstr " за голосование"
+
+#~ msgid " for create do not take from:"
+#~ msgstr " за создание не снимать с:"
+
+#~ msgid "Pay replies:"
+#~ msgstr "Платные ответы:"
+
+#~ msgid " for reply do not take from:"
+#~ msgstr " за ответ  не снимать с:"
+
+#~ msgid "administrator"
+#~ msgstr "Администратор"
+
+#~ msgid "subscriber"
+#~ msgstr "Подписчик"
+
+#~ msgid "contributor"
+#~ msgstr "Участник"
+
+#~ msgid "author"
+#~ msgstr "Автор"
+
+#~ msgid "editor"
+#~ msgstr "Редактор"
+
+#~ msgid "Cost:"
+#~ msgstr "Цена:"

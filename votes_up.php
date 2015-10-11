@@ -41,20 +41,22 @@ function add_pay_topic()
     $query = get_post_custom();
     $pay_forum = $query['_pay_forum'][0];
     $cost_forum = $query['_cost_forum'][0];
-    if ($query['_pay_vote'][0] == "") {
+    if ($query['_pay_vote'][0] === "") {
         $pay_vote = 1;
     } else {
         $pay_vote = $query['_pay_vote'][0];
     }
-    if ($query['_cost_vote'][0] == "") {
+    if ($query['_cost_vote'][0] === "") {
         $cost_vote = 1;
     } else {
         $cost_vote = $query['_cost_vote'][0];
     }
-    $user_status = array("administrator", "subscriber", "contributor", "author", "editor");
-    $ar_status = array();
+
+    $obj_roles = new WP_Roles();
+    $roles_name_arr = $obj_roles->get_names();
+
     if (!isset($query['_group'][0])) {
-        $ar_status = array("administrator");
+        $ar_status[0] = wp_roles()->roles['administrator']['name'];
     } else {
         $ar_status = unserialize($query['_group'][0]);
     }
@@ -73,7 +75,6 @@ function add_pay_reply()
     $pay_reply = $query['_pay_reply'][0];
     $cost_reply = $query['_cost_reply'][0];
     $user_status = array("administrator", "subscriber", "contributor", "author", "editor");
-    $ar_status = array();
     if (!isset($query['_group'][0])) {
         $ar_status = array("administrator");
     } else {
@@ -110,7 +111,8 @@ function add_forum_attributes($post_id)
     } else {
         $pay_vote_cred = 0;
     }
-    if (isset($_REQUEST['group'])) {
+    //
+    if (isset($_POST['group'])) {
         $group = $_POST["group"];
     }
 
@@ -145,7 +147,8 @@ function add_reply_attributes($post_id)
     } else {
         $pay_reply_cred = 0;
     }
-    if (isset($_REQUEST['group'])) {
+    //
+    if (isset($_POST['group'])) {
         $group = $_POST["group"];
     }
     // Update the meta field in the database.
@@ -168,7 +171,6 @@ function add_reply_attributes($post_id)
  */
 function do_post_vote_up($post_id, $user_id, $vote)
 {
-
     $voteplus = $vote;
     $author_id = 0;
     if (!$post = get_post($post_id)) {
@@ -228,12 +230,8 @@ function theme_before_topic()
         $message_pay = __('Creating topics in this forum pay.  It is worth ', 'votes_Up-plugin') . $cost_forum .' '. $mycred->plural();
     }
 
-    if ($pay_forum == 1) {
-        if ($cost_forum == 0) {
-            return;
-        } else {
-            include('votes_up_message_pay.phtml');
-        }
+    if ($pay_forum === 1 && $cost_forum > 0) {
+        include('votes_up_message_pay.phtml');
     } else {
         return;
     }
@@ -391,12 +389,8 @@ function theme_before_reply()
         $reply_pay = __('Reply in this forum paid. It is worth ', 'votes_Up-plugin') . $cost_reply .' '. $mycred->plural();
     }
 
-    if ($pay_reply == 1) {
-        if ($cost_reply == 0) {
-            return;
-        } else {
-            include('votes_up_reply_pay.phtml');
-        }
+    if ($pay_reply === 1 && $cost_reply > 0) {
+        include('votes_up_reply_pay.phtml');
     } else {
         return;
     }
