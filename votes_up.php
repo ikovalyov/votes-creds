@@ -37,27 +37,28 @@ function votes_up_load_lang()
  */
 function add_pay_topic()
 {
-    $query = get_post_custom();
-    $pay_forum = $query['_pay_forum'][0];
-    $cost_forum = $query['_cost_forum'][0];
-    if ($query['_pay_vote'][0] === "") {
+    $post_meta = get_post_custom();
+    $pay_forum = $post_meta['_pay_forum'][0];
+    $cost_forum = $post_meta['_cost_forum'][0];
+    if ($post_meta['_pay_vote'][0] == "") {
         $pay_vote = 1;
     } else {
-        $pay_vote = $query['_pay_vote'][0];
+        $pay_vote = $post_meta['_pay_vote'][0];
     }
-    if ($query['_cost_vote'][0] === "") {
+    if ($post_meta['_cost_vote'][0] == "") {
         $cost_vote = 1;
     } else {
-        $cost_vote = $query['_cost_vote'][0];
+        $cost_vote = $post_meta['_cost_vote'][0];
     }
 
     $obj_roles = new WP_Roles();
-    $roles = $obj_roles->role_names;
+    $roles['no_one'] = 'no one';
+    $roles += $obj_roles->role_names;
 
-    if (!isset($query['_group'][0])) {
+    if (!isset($post_meta['_group'][0])) {
         $ar_status[0] = 'administrator';
     } else {
-        $ar_status = unserialize($query['_group'][0]);
+        $ar_status = unserialize($post_meta['_group'][0]);
     }
 
     $mycred = mycred();
@@ -69,17 +70,18 @@ function add_pay_topic()
  */
 function add_pay_reply()
 {
-    $query = get_post_custom();
-    $pay_reply = $query['_pay_reply'][0];
-    $cost_reply = $query['_cost_reply'][0];
+    $post_meta = get_post_custom();
+    $pay_reply = $post_meta['_pay_reply'][0];
+    $cost_reply = $post_meta['_cost_reply'][0];
 
     $obj_roles = new WP_Roles();
-    $roles = $obj_roles->role_names;
+    $roles['no_one'] = 'no one';
+    $roles += $obj_roles->role_names;
 
-    if (!isset($query['_group'][0])) {
+    if (!isset($post_meta['_group'][0])) {
         $ar_status[0] = 'administrator';
     } else {
-        $ar_status = unserialize($query['_group'][0]);
+        $ar_status = unserialize($post_meta['_group'][0]);
     }
 
     $mycred = mycred();
@@ -169,13 +171,14 @@ function add_reply_attributes($post_id)
 function do_post_vote_up($post_id, $user_id, $vote)
 {
     $voteplus = $vote;
-    $author_id = 0;
+
     if (!$post = get_post($post_id)) {
         return false;
     }
     if (mycred_exclude_user($user_id)) {
         return;
     }
+
     $post_type = $post->post_type;
     if ($post_type == 'topic') {
         $author_id = $post->post_author;
@@ -188,23 +191,42 @@ function do_post_vote_up($post_id, $user_id, $vote)
         $forum_id = $post->post_parent;
         $forum = get_post_meta($forum_id);
     }
-    $pay_vote = $forum['_pay_vote'][0];
-    $pay_vote = $pay_vote;
 
+    $pay_vote = $forum['_pay_vote'][0];
     if ($pay_vote == 0) {
         return;
     } else if ($pay_vote == 1) {
         $cost_vote = $forum['_cost_vote'][0];
     }
-    //insert new vote
-    if ($voteplus) {
-        // Add points and save the current year as ref_id
-        mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', date('y'));
-    } else {
-        // remove points and save the current year as ref_id
-        mycred_add('vote_down', $author_id, 0 - $cost_vote, 'Vote_down', date('y'));
-    }
 
+    $post_meta = get_post_meta($post_id);
+    if (array_key_exists('_toggle_vote', $post_meta)) {
+        //insert new vote
+        if ($voteplus) {
+            // Add points and save the current year as ref_id
+            mycred_add('vote_up', $author_id, 2 * $cost_vote, 'Vote_up_change_vote', date('y'));
+            $toggle_vote = true;
+            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+        } else {
+            // remove points and save the current year as ref_id
+            mycred_subtract('vote_down', $author_id, 2 * $cost_vote, 'Vote_down_change_vote', date('y'));
+            $toggle_vote = false;
+            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+        }
+    } else {
+        //insert new vote
+        if ($voteplus) {
+            // Add points and save the current year as ref_id
+            mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', date('y'));
+            $toggle_vote = true;
+            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+        } else {
+            // remove points and save the current year as ref_id
+            mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', date('y'));
+            $toggle_vote = false;
+            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+        }
+    }
 }
 
 /**
@@ -212,9 +234,9 @@ function do_post_vote_up($post_id, $user_id, $vote)
  */
 function theme_before_topic()
 {
-    $query = get_post_custom();
-    $pay_forum = $query['_pay_forum'][0];
-    $cost_forum = $query['_cost_forum'][0];
+    $post_meta = get_post_custom();
+    $pay_forum = $post_meta['_pay_forum'][0];
+    $cost_forum = $post_meta['_cost_forum'][0];
     //get  myCRED_Settings
     $mycred = mycred();
     if ($cost_forum == 1) {
@@ -222,11 +244,23 @@ function theme_before_topic()
     } else {
         $message_pay = __('Creating topics in this forum pay.  It is worth ', 'votes_Up-plugin') . $cost_forum . ' ' . $mycred->plural();
     }
+
+    //add fields if admin
+    $current_user = wp_get_current_user();
+    if (current_user_can('manage_options')) {
+        $obj_roles = new WP_Roles();
+        $roles['no_one'] = 'no one';
+        $roles += $obj_roles->role_names;
+        $ar_status[0] = 'administrator';
+        include("votes_up_pay_reply.phtml");
+    }
+
     if ($pay_forum == 1 && $cost_forum > 0) {
         include('votes_up_message_pay.phtml');
     } else {
         return;
     }
+
 }
 
 /**
@@ -238,21 +272,23 @@ function pay_for_topic()
         if (empty($_POST['bbp_topic_content'])) {
             return;
         }
+
         $forum_id = $_POST['bbp_forum_id'];
         $user_id = get_current_user_id();
         //get  myCRED_Settings
         $mycred = mycred();
 
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
-        $meta = get_post_meta($forum_id);
-        $pay_forum = $meta['_pay_forum'][0];
-        $cost_forum = $meta['_cost_forum'][0];
-        $ar_status = unserialize($meta['_group'][0]);
+        $post_meta = get_post_meta($forum_id);
+        $pay_forum = $post_meta['_pay_forum'][0];
+        $cost_forum = $post_meta['_cost_forum'][0];
+        $ar_status = unserialize($post_meta['_group'][0]);
 
         $current_user = wp_get_current_user();
         if (!($current_user instanceof WP_User))
             return;
         $roles = $current_user->roles;
+
         if (!$ar_status) {
             return;
         }
@@ -279,15 +315,15 @@ function remove_creds_for_topic()
     }
 
     $forum_id = $_POST['bbp_forum_id'];
-    $meta = get_post_meta($forum_id);
-    $pay_forum = $meta['_pay_forum'][0];
-    $cost_forum = $meta['_cost_forum'][0];
+    $post_meta = get_post_meta($forum_id);
+    $pay_forum = $post_meta['_pay_forum'][0];
+    $cost_forum = $post_meta['_cost_forum'][0];
 
     if ($pay_forum == 0) {
         return;
     } else {
         // remove points and save the current year as ref_id
-        mycred_add('vote_down', $user_id, 0 - $cost_forum, 'Pay for messaage', date('y'));
+        mycred_subtract('vote_down', $user_id, $cost_forum, 'Pay for topic', date('y'));
     }
 }
 
@@ -296,9 +332,9 @@ function remove_creds_for_topic()
  */
 function theme_before_reply()
 {
-    $query = get_post_custom();
-    $pay_reply = $query['_pay_reply'][0];
-    $cost_reply = $query['_cost_reply'][0];
+    $post_meta = get_post_custom();
+    $pay_reply = $post_meta['_pay_reply'][0];
+    $cost_reply = $post_meta['_cost_reply'][0];
     //get  myCRED_Settings
     $mycred = mycred();
     if ($cost_reply == 1) {
@@ -322,16 +358,17 @@ function pay_for_reply()
         if (empty($_POST['bbp_reply_content'])) {
             return;
         }
+
         $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
         //get  myCRED_Settings
         $mycred = mycred();
 
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
-        $meta = get_post_meta($topic_id);
-        $pay_reply = $meta['_pay_reply'][0];
-        $cost_reply = $meta['_cost_reply'][0];
-        $ar_status = unserialize($meta['_group'][0]);
+        $post_meta = get_post_meta($topic_id);
+        $pay_reply = $post_meta['_pay_reply'][0];
+        $cost_reply = $post_meta['_cost_reply'][0];
+        $ar_status = unserialize($post_meta['_group'][0]);
 
         $current_user = wp_get_current_user();
         if (!($current_user instanceof WP_User))
@@ -358,18 +395,16 @@ function remove_creds_for_reply()
     if (mycred_exclude_user($user_id)) {
         return;
     }
+
     $topic_id = $_POST['bbp_topic_id'];
-    $meta = get_post_meta($topic_id);
-    $pay_reply = $meta['_pay_reply'][0];
-    $cost_reply = $meta['_cost_reply'][0];
+    $post_meta = get_post_meta($topic_id);
+    $pay_reply = $post_meta['_pay_reply'][0];
+    $cost_reply = $post_meta['_cost_reply'][0];
 
     if ($pay_reply != 0) {
         // remove points and save the current year as ref_id
-        mycred_add('vote_down', $user_id, 0 - $cost_reply, 'Pay for reply', date('y'));
+        mycred_subtract('vote_down', $user_id, $cost_reply, 'Pay for reply', date('y'));
     } else {
         return;
     }
 }
-
-
-
