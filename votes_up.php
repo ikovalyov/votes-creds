@@ -203,12 +203,12 @@ function do_post_vote_up($post_id, $user_id, $vote)
     if (array_key_exists('_toggle_vote', $post_meta)) {
         //insert new vote
         if ($voteplus) {
-            // Add points and save the current year as ref_id
+            // Add points and save the current year
             mycred_add('vote_up', $author_id, 2 * $cost_vote, 'Vote_up_change_vote', date('y'));
             $toggle_vote = true;
             update_post_meta($post_id, '_toggle_vote', $toggle_vote);
         } else {
-            // remove points and save the current year as ref_id
+            // remove points and save the current year
             mycred_subtract('vote_down', $author_id, 2 * $cost_vote, 'Vote_down_change_vote', date('y'));
             $toggle_vote = false;
             update_post_meta($post_id, '_toggle_vote', $toggle_vote);
@@ -216,12 +216,12 @@ function do_post_vote_up($post_id, $user_id, $vote)
     } else {
         //insert new vote
         if ($voteplus) {
-            // Add points and save the current year as ref_id
+            // Add points and save the current year
             mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', date('y'));
             $toggle_vote = true;
             update_post_meta($post_id, '_toggle_vote', $toggle_vote);
         } else {
-            // remove points and save the current year as ref_id
+            // remove points and save the current year
             mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', date('y'));
             $toggle_vote = false;
             update_post_meta($post_id, '_toggle_vote', $toggle_vote);
@@ -322,7 +322,7 @@ function remove_creds_for_topic()
     if ($pay_forum == 0) {
         return;
     } else {
-        // remove points and save the current year as ref_id
+        // remove points and save the current year
         mycred_subtract('vote_down', $user_id, $cost_forum, 'Pay for topic', date('y'));
     }
 }
@@ -402,7 +402,7 @@ function remove_creds_for_reply()
     $cost_reply = $post_meta['_cost_reply'][0];
 
     if ($pay_reply != 0) {
-        // remove points and save the current year as ref_id
+        // remove points and save the current year
         mycred_subtract('vote_down', $user_id, $cost_reply, 'Pay for reply', date('y'));
     } else {
         return;
