@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Votes Up v1.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-10 16:35+0300\n"
-"PO-Revision-Date: 2015-10-10 16:36+0300\n"
+"POT-Creation-Date: 2015-10-19 15:01+0300\n"
+"PO-Revision-Date: 2015-10-19 17:10+0300\n"
 "Last-Translator: root <alex_dyak@mail.ru>\n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -13,7 +13,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
-"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;"
+"translate\n"
 "X-Poedit-Basepath: ..\n"
 "X-Textdomain-Support: yes\n"
 "X-Generator: Poedit 1.8.5\n"
@@ -24,23 +25,23 @@ msgstr ""
 "X-Poedit-SearchPath-4: votes_up_pay_reply.phtml\n"
 "X-Poedit-SearchPath-5: votes_up_reply_pay.phtml\n"
 
-#: votes_up.php:236 votes_up.php:238
+#: votes_up.php:261 votes_up.php:263
 msgid "Creating topics in this forum pay.  It is worth "
 msgstr "Создание темы в этом форуме платное.  Это стоит "
 
-#: votes_up.php:287
+#: votes_up.php:317
 #, php-format
 msgid "<strong>ERROR</strong>: You have not enough %s to post a topic!"
 msgstr "<strong>Ошибка</strong>: у вас не хватает  %s чтобы создать тему!"
 
-#: votes_up.php:356
+#: votes_up.php:359 votes_up.php:361
+msgid "Reply in this forum paid. It is worth "
+msgstr "Ответ в этом форуме платный. Это стоит "
+
+#: votes_up.php:402
 #, php-format
 msgid "<strong>ERROR</strong>: You have not enough %s to reply!"
 msgstr "<strong>Ошибка</strong>: у вас не хватает  %s чтобы ответить!"
-
-#: votes_up.php:395 votes_up.php:397
-msgid "Reply in this forum paid. It is worth "
-msgstr "Ответ в этом форуме платный. Это стоит "
 
 #: votes_up_pay_forum.phtml:11
 msgid "Topics fee:"
@@ -50,29 +51,56 @@ msgstr "Платные темы:"
 msgid "Price:"
 msgstr "Цена:"
 
-#: votes_up_pay_forum.phtml:22
-msgid " Voting "
-msgstr "  За голосование "
+#: votes_up_pay_forum.phtml:19 votes_up_pay_reply.phtml:19
+msgid " Exclude users:"
+msgstr " Исключить пользователей:"
 
-#: votes_up_pay_forum.phtml:23
-msgid " amount"
-msgstr "Количество"
+#: votes_up_pay_forum.phtml:38
+#, php-format
+msgid "Amount %s voting"
+msgstr "Количество %s за голосование"
 
-#: votes_up_pay_forum.phtml:25
+#: votes_up_pay_forum.phtml:43
 msgid " Add:"
 msgstr "Добавить:"
 
-#: votes_up_pay_forum.phtml:29
+#: votes_up_pay_forum.phtml:47
 msgid "Quantity:"
 msgstr "Кол-во:"
-
-#: votes_up_pay_forum.phtml:35 votes_up_pay_reply.phtml:19
-msgid " Exclude users:"
-msgstr " Исключить пользователей:"
 
 #: votes_up_pay_reply.phtml:11
 msgid "Reply fee:"
 msgstr "Плата за ответ:"
+
+#~ msgid " amount"
+#~ msgstr "Количество"
+
+#~ msgid " Voting "
+#~ msgstr "  За голосование "
+
+#~ msgid " You have not enough %s to post a topic!"
+#~ msgstr "У вас не хватает %s чтобы создать тему!"
+
+#~ msgid " amount %1\\$s Voting "
+#~ msgstr "Количество %1\\$s за голосование"
+
+#~ msgid " amount %s Voting "
+#~ msgstr "Количество %s за голосование"
+
+#~ msgid " amount %1 Voting "
+#~ msgstr "Количество %1 за голосование"
+
+#~ msgid " Amount %s voting "
+#~ msgstr "Количество %s за голосование"
+
+#~ msgid " Amount %1s voting "
+#~ msgstr "Количество %1s за голосование"
+
+#~ msgid " Amount %1 voting "
+#~ msgstr "Количество %1 за голосование"
+
+#~ msgid " Amount %l voting "
+#~ msgstr "Сумма %l голосование"
 
 #~ msgid "Pay topics:"
 #~ msgstr "Платные темы:"

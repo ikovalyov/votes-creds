@@ -60,7 +60,7 @@ function add_pay_topic()
     } else {
         $ar_status = unserialize($post_meta['_group'][0]);
     }
-
+    //get  myCRED_Settings
     $mycred = mycred();
     include("votes_up_pay_forum.phtml");
 }
@@ -83,7 +83,6 @@ function add_pay_reply()
     } else {
         $ar_status = unserialize($post_meta['_group'][0]);
     }
-
     $mycred = mycred();
     include("votes_up_pay_reply.phtml");
 }
@@ -200,31 +199,41 @@ function do_post_vote_up($post_id, $user_id, $vote)
     }
 
     $post_meta = get_post_meta($post_id);
+    $author_mycred_default = get_user_meta($author_id, 'mycred_default', true);
     if (array_key_exists('_toggle_vote', $post_meta)) {
-        //insert new vote
-        if ($voteplus) {
-            // Add points and save the current year
-            mycred_add('vote_up', $author_id, 2 * $cost_vote, 'Vote_up_change_vote', date('y'));
-            $toggle_vote = true;
-            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+        if (in_array($user_id, $post_meta['_toggle_vote'])) {
+            if ($voteplus) {
+                global $wpdb;
+                $wpdb->delete($wpdb->prefix . 'myCRED_log', array('ref_id' => $user_id, 'creds' => -$cost_vote), array('%d'));
+                $author_creds = $author_mycred_default + $cost_vote;
+                update_user_meta($author_id, 'mycred_default', $author_creds);
+                mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
+            } else {
+                global $wpdb;
+                $wpdb->delete($wpdb->prefix . 'myCRED_log', array('ref_id' => $user_id, 'creds' => $cost_vote), array('%d'));
+                $author_creds = $author_mycred_default - $cost_vote;
+                update_user_meta($author_id, 'mycred_default', $author_creds);
+                mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
+            }
         } else {
-            // remove points and save the current year
-            mycred_subtract('vote_down', $author_id, 2 * $cost_vote, 'Vote_down_change_vote', date('y'));
-            $toggle_vote = false;
-            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+            if ($voteplus) {
+                // add points
+                mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
+                add_post_meta($post_id, '_toggle_vote', $user_id);
+            } else {
+                // remove points
+                mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
+                add_post_meta($post_id, '_toggle_vote', $user_id);
+            }
         }
     } else {
-        //insert new vote
         if ($voteplus) {
-            // Add points and save the current year
-            mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', date('y'));
-            $toggle_vote = true;
-            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+            mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
+            update_post_meta($post_id, '_toggle_vote', $user_id);
         } else {
-            // remove points and save the current year
-            mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', date('y'));
-            $toggle_vote = false;
-            update_post_meta($post_id, '_toggle_vote', $toggle_vote);
+            // remove points
+            mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
+            update_post_meta($post_id, '_toggle_vote', $user_id);
         }
     }
 }
@@ -237,7 +246,6 @@ function theme_before_topic()
     $post_meta = get_post_custom();
     $pay_forum = $post_meta['_pay_forum'][0];
     $cost_forum = $post_meta['_cost_forum'][0];
-    //get  myCRED_Settings
     $mycred = mycred();
     if ($cost_forum == 1) {
         $message_pay = __('Creating topics in this forum pay.  It is worth ', 'votes_Up-plugin') . $cost_forum . ' ' . $mycred->singular();
@@ -275,7 +283,7 @@ function pay_for_topic()
 
         $forum_id = $_POST['bbp_forum_id'];
         $user_id = get_current_user_id();
-        //get  myCRED_Settings
+
         $mycred = mycred();
 
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
@@ -322,7 +330,7 @@ function remove_creds_for_topic()
     if ($pay_forum == 0) {
         return;
     } else {
-        // remove points and save the current year
+        // remove points
         mycred_subtract('vote_down', $user_id, $cost_forum, 'Pay for topic', date('y'));
     }
 }
@@ -335,7 +343,6 @@ function theme_before_reply()
     $post_meta = get_post_custom();
     $pay_reply = $post_meta['_pay_reply'][0];
     $cost_reply = $post_meta['_cost_reply'][0];
-    //get  myCRED_Settings
     $mycred = mycred();
     if ($cost_reply == 1) {
         $reply_pay = __('Reply in this forum paid. It is worth ', 'votes_Up-plugin') . $cost_reply . ' ' . $mycred->singular();
@@ -361,7 +368,6 @@ function pay_for_reply()
 
         $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
-        //get  myCRED_Settings
         $mycred = mycred();
 
         $user_creds = get_user_meta($user_id, 'mycred_default', true);
@@ -402,7 +408,7 @@ function remove_creds_for_reply()
     $cost_reply = $post_meta['_cost_reply'][0];
 
     if ($pay_reply != 0) {
-        // remove points and save the current year
+        // remove points
         mycred_subtract('vote_down', $user_id, $cost_reply, 'Pay for reply', date('y'));
     } else {
         return;
