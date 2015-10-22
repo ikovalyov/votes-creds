@@ -172,7 +172,7 @@ function do_post_vote_up($post_id, $user_id, $vote)
     $voteplus = $vote;
 
     if (!$post = get_post($post_id)) {
-        return false;
+        return;
     }
     if (mycred_exclude_user($user_id)) {
         return;
@@ -200,40 +200,28 @@ function do_post_vote_up($post_id, $user_id, $vote)
 
     $post_meta = get_post_meta($post_id);
     $author_mycred_default = get_user_meta($author_id, 'mycred_default', true);
-    if (array_key_exists('_toggle_vote', $post_meta)) {
-        if (in_array($user_id, $post_meta['_toggle_vote'])) {
-            if ($voteplus) {
-                global $wpdb;
-                $wpdb->delete($wpdb->prefix . 'myCRED_log', array('ref_id' => $user_id, 'creds' => -$cost_vote), array('%d'));
-                $author_creds = $author_mycred_default + $cost_vote;
-                update_user_meta($author_id, 'mycred_default', $author_creds);
-                mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
-            } else {
-                global $wpdb;
-                $wpdb->delete($wpdb->prefix . 'myCRED_log', array('ref_id' => $user_id, 'creds' => $cost_vote), array('%d'));
-                $author_creds = $author_mycred_default - $cost_vote;
-                update_user_meta($author_id, 'mycred_default', $author_creds);
-                mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
-            }
+    global $wpdb;
+    if (array_key_exists('_toggle_vote', $post_meta) && in_array($user_id, $post_meta['_toggle_vote'])) {
+        if ($voteplus) {
+            $wpdb->delete($wpdb->prefix . 'myCRED_log', array('ref_id' => $user_id, 'creds' => -$cost_vote), array('%d'));
+            $author_creds = $author_mycred_default + $cost_vote;
+            update_user_meta($author_id, 'mycred_default', $author_creds);
+            mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
         } else {
-            if ($voteplus) {
-                // add points
-                mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
-                add_post_meta($post_id, '_toggle_vote', $user_id);
-            } else {
-                // remove points
-                mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
-                add_post_meta($post_id, '_toggle_vote', $user_id);
-            }
+            $wpdb->delete($wpdb->prefix . 'myCRED_log', array('ref_id' => $user_id, 'creds' => $cost_vote), array('%d'));
+            $author_creds = $author_mycred_default - $cost_vote;
+            update_user_meta($author_id, 'mycred_default', $author_creds);
+            mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
         }
     } else {
         if ($voteplus) {
+            // add points
             mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
-            update_post_meta($post_id, '_toggle_vote', $user_id);
+            add_post_meta($post_id, '_toggle_vote', $user_id);
         } else {
             // remove points
             mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
-            update_post_meta($post_id, '_toggle_vote', $user_id);
+            add_post_meta($post_id, '_toggle_vote', $user_id);
         }
     }
 }
