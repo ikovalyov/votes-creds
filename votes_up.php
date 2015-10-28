@@ -217,12 +217,11 @@ function do_post_vote_up($post_id, $user_id, $vote)
         if ($voteplus) {
             // add points
             mycred_add('vote_up', $author_id, $cost_vote, 'Vote_up', $user_id);
-            add_post_meta($post_id, '_toggle_vote', $user_id);
         } else {
             // remove points
             mycred_subtract('vote_down', $author_id, $cost_vote, 'Vote_down', $user_id);
-            add_post_meta($post_id, '_toggle_vote', $user_id);
         }
+        add_post_meta($post_id, '_toggle_vote', $user_id);
     }
 }
 
