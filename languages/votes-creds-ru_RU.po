@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Votes Up v1.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-19 15:01+0300\n"
-"PO-Revision-Date: 2015-10-19 17:10+0300\n"
+"POT-Creation-Date: 2015-10-29 12:00+0200\n"
+"PO-Revision-Date: 2015-10-29 12:08+0200\n"
 "Last-Translator: root <alex_dyak@mail.ru>\n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -19,56 +19,56 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Generator: Poedit 1.8.5\n"
 "X-Poedit-SearchPath-0: .\n"
-"X-Poedit-SearchPath-1: votes_up.php\n"
-"X-Poedit-SearchPath-2: votes_up_message_pay.phtml\n"
-"X-Poedit-SearchPath-3: votes_up_pay_forum.phtml\n"
-"X-Poedit-SearchPath-4: votes_up_pay_reply.phtml\n"
-"X-Poedit-SearchPath-5: votes_up_reply_pay.phtml\n"
+"X-Poedit-SearchPath-1: votes-creds.php\n"
+"X-Poedit-SearchPath-2: votes-creds-message-pay.phtml\n"
+"X-Poedit-SearchPath-3: votes-creds-pay-reply.phtml\n"
+"X-Poedit-SearchPath-4: votes-creds-reply-pay.phtml\n"
+"X-Poedit-SearchPath-5: votes-creds-pay-forum.phtml\n"
 
-#: votes_up.php:261 votes_up.php:263
+#: votes-creds.php:231 votes-creds.php:233
 msgid "Creating topics in this forum pay.  It is worth "
 msgstr "Создание темы в этом форуме платное.  Это стоит "
 
-#: votes_up.php:317
+#: votes-creds.php:287
 #, php-format
 msgid "<strong>ERROR</strong>: You have not enough %s to post a topic!"
 msgstr "<strong>Ошибка</strong>: у вас не хватает  %s чтобы создать тему!"
 
-#: votes_up.php:359 votes_up.php:361
+#: votes-creds.php:326 votes-creds.php:328
 msgid "Reply in this forum paid. It is worth "
 msgstr "Ответ в этом форуме платный. Это стоит "
 
-#: votes_up.php:402
+#: votes-creds.php:368
 #, php-format
 msgid "<strong>ERROR</strong>: You have not enough %s to reply!"
 msgstr "<strong>Ошибка</strong>: у вас не хватает  %s чтобы ответить!"
 
-#: votes_up_pay_forum.phtml:11
+#: votes-creds-pay-forum.phtml:2
 msgid "Topics fee:"
 msgstr "Платные темы:"
 
-#: votes_up_pay_forum.phtml:15 votes_up_pay_reply.phtml:15
+#: votes-creds-pay-forum.phtml:6 votes-creds-pay-reply.phtml:6
 msgid "Price:"
 msgstr "Цена:"
 
-#: votes_up_pay_forum.phtml:19 votes_up_pay_reply.phtml:19
+#: votes-creds-pay-forum.phtml:10 votes-creds-pay-reply.phtml:10
 msgid " Exclude users:"
 msgstr " Исключить пользователей:"
 
-#: votes_up_pay_forum.phtml:38
+#: votes-creds-pay-forum.phtml:24
 #, php-format
 msgid "Amount %s voting"
 msgstr "Количество %s за голосование"
 
-#: votes_up_pay_forum.phtml:43
+#: votes-creds-pay-forum.phtml:27
 msgid " Add:"
 msgstr "Добавить:"
 
-#: votes_up_pay_forum.phtml:47
+#: votes-creds-pay-forum.phtml:31
 msgid "Quantity:"
 msgstr "Кол-во:"
 
-#: votes_up_pay_reply.phtml:11
+#: votes-creds-pay-reply.phtml:2
 msgid "Reply fee:"
 msgstr "Плата за ответ:"
 
