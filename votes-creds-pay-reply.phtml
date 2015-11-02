@@ -1,0 +1,21 @@
+<p>
+    <strong class="label"><?php _e( 'Reply fee:', 'votes-creds' ); ?></strong>
+    <input type="checkbox" name="pay_reply"  value="" <?php echo $pay_reply == 1 ? 'checked="checked"' : '';?> />
+</p>
+<p>
+    <strong class="label"><?php _e( 'Price:', 'votes-creds' ); ?></strong>
+    <input type="text" name="pay_reply_cred" size="8" value="<?php echo $cost_reply; ?>" />
+</p>
+<p>
+    <th scope="row"><?php echo _e( ' Exclude users:', 'votes-creds' ) ?></th>
+    <br />
+    <strong class="label"><?php ( '' ); ?></strong>
+    <select multiple size="6" name="group[]">
+        <?php
+        foreach ( $roles as $key=>$values ) {
+            $selected = ( in_array( $key, $ar_status ) ) ? ' selected' : '';
+            echo "<option value='" . $key . "'$selected>" . $values . "</option>";
+        }
+        ?>
+    </select>
+</p>

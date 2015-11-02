@@ -1,0 +1,36 @@
+<p>
+    <strong class="label"><?php _e( 'Topics fee:', 'votes-creds' ); ?></strong>
+    <input type="checkbox" name="pay_topic" value="" <?php echo $pay_forum == 1 ? 'checked="checked"' : ''; ?> />
+</p>
+<p>
+    <strong class="label"><?php _e( 'Price:', 'votes-creds' ); ?></strong>
+    <input type="text" name="pay_forum_cred" size="8" value="<?php echo $cost_forum; ?>" />
+</p>
+<p>
+    <th scope="row"><?php _e( ' Exclude users:', 'votes-creds' ) ?></th>
+    <br />
+    <strong class="label"><?php ( '' ); ?></strong>
+    <select multiple size="6" name="group[]">
+        <?php
+        foreach ( $roles as $key => $values ) {
+            $selected = ( in_array( $key, $ar_status ) ) ? ' selected' : '';
+            echo "<option value='" . $key . "'$selected>" . $values . "</option>";
+        }
+        ?>
+    </select>
+</p>
+<p>
+    <th scope="row">
+        <?php echo sprintf( __( 'Amount %s voting', 'votes-creds' ), $mycred->plural() ); ?>
+    </th>
+    <br />
+    <strong class="label"><?php _e( ' Add:', 'votes-creds' ); ?></strong>
+    <input type="checkbox" name="vote_up" value="" <?php echo $pay_vote == 1 ? 'checked="checked"' : ''; ?> />
+</p>
+<p>
+    <strong class="label"><?php _e( 'Quantity:', 'votes-creds' ); ?></strong>
+    <input type="text" name="voting_up" size="8" value="<?php echo $cost_vote; ?>" />
+</p>
+
+
+

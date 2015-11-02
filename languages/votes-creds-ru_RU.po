@@ -1,0 +1,139 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Votes Up v1.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-10-29 12:00+0200\n"
+"PO-Revision-Date: 2015-10-29 12:08+0200\n"
+"Last-Translator: root <alex_dyak@mail.ru>\n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
+"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;"
+"translate\n"
+"X-Poedit-Basepath: ..\n"
+"X-Textdomain-Support: yes\n"
+"X-Generator: Poedit 1.8.5\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: votes-creds.php\n"
+"X-Poedit-SearchPath-2: votes-creds-message-pay.phtml\n"
+"X-Poedit-SearchPath-3: votes-creds-pay-reply.phtml\n"
+"X-Poedit-SearchPath-4: votes-creds-reply-pay.phtml\n"
+"X-Poedit-SearchPath-5: votes-creds-pay-forum.phtml\n"
+
+#: votes-creds.php:231 votes-creds.php:233
+msgid "Creating topics in this forum pay.  It is worth "
+msgstr "Создание темы в этом форуме платное.  Это стоит "
+
+#: votes-creds.php:287
+#, php-format
+msgid "<strong>ERROR</strong>: You have not enough %s to post a topic!"
+msgstr "<strong>Ошибка</strong>: у вас не хватает  %s чтобы создать тему!"
+
+#: votes-creds.php:326 votes-creds.php:328
+msgid "Reply in this forum paid. It is worth "
+msgstr "Ответ в этом форуме платный. Это стоит "
+
+#: votes-creds.php:368
+#, php-format
+msgid "<strong>ERROR</strong>: You have not enough %s to reply!"
+msgstr "<strong>Ошибка</strong>: у вас не хватает  %s чтобы ответить!"
+
+#: votes-creds-pay-forum.phtml:2
+msgid "Topics fee:"
+msgstr "Платные темы:"
+
+#: votes-creds-pay-forum.phtml:6 votes-creds-pay-reply.phtml:6
+msgid "Price:"
+msgstr "Цена:"
+
+#: votes-creds-pay-forum.phtml:10 votes-creds-pay-reply.phtml:10
+msgid " Exclude users:"
+msgstr " Исключить пользователей:"
+
+#: votes-creds-pay-forum.phtml:24
+#, php-format
+msgid "Amount %s voting"
+msgstr "Количество %s за голосование"
+
+#: votes-creds-pay-forum.phtml:27
+msgid " Add:"
+msgstr "Добавить:"
+
+#: votes-creds-pay-forum.phtml:31
+msgid "Quantity:"
+msgstr "Кол-во:"
+
+#: votes-creds-pay-reply.phtml:2
+msgid "Reply fee:"
+msgstr "Плата за ответ:"
+
+#~ msgid " amount"
+#~ msgstr "Количество"
+
+#~ msgid " Voting "
+#~ msgstr "  За голосование "
+
+#~ msgid " You have not enough %s to post a topic!"
+#~ msgstr "У вас не хватает %s чтобы создать тему!"
+
+#~ msgid " amount %1\\$s Voting "
+#~ msgstr "Количество %1\\$s за голосование"
+
+#~ msgid " amount %s Voting "
+#~ msgstr "Количество %s за голосование"
+
+#~ msgid " amount %1 Voting "
+#~ msgstr "Количество %1 за голосование"
+
+#~ msgid " Amount %s voting "
+#~ msgstr "Количество %s за голосование"
+
+#~ msgid " Amount %1s voting "
+#~ msgstr "Количество %1s за голосование"
+
+#~ msgid " Amount %1 voting "
+#~ msgstr "Количество %1 за голосование"
+
+#~ msgid " Amount %l voting "
+#~ msgstr "Сумма %l голосование"
+
+#~ msgid "Pay topics:"
+#~ msgstr "Платные темы:"
+
+#~ msgid "Voting "
+#~ msgstr " За голосование"
+
+#~ msgid " for voting"
+#~ msgstr " за голосование"
+
+#~ msgid " for create do not take from:"
+#~ msgstr " за создание не снимать с:"
+
+#~ msgid "Pay replies:"
+#~ msgstr "Платные ответы:"
+
+#~ msgid " for reply do not take from:"
+#~ msgstr " за ответ  не снимать с:"
+
+#~ msgid "administrator"
+#~ msgstr "Администратор"
+
+#~ msgid "subscriber"
+#~ msgstr "Подписчик"
+
+#~ msgid "contributor"
+#~ msgstr "Участник"
+
+#~ msgid "author"
+#~ msgstr "Автор"
+
+#~ msgid "editor"
+#~ msgstr "Редактор"
+
+#~ msgid "Cost:"
+#~ msgstr "Цена:"
