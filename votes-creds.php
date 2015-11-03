@@ -310,12 +310,10 @@ function remove_creds_for_topic() {
     if ( mycred_exclude_user( $user_id ) ) {
         return;
     }
-
     $forum_id = $_POST['bbp_forum_id'];
     $post_meta = get_post_meta( $forum_id );
     $pay_forum = $post_meta['_pay_forum'][0];
     $cost_forum = $post_meta['_cost_forum'][0];
-
     if ( $pay_forum == 0 ) {
         return;
     } else {
@@ -353,10 +351,9 @@ function pay_for_reply() {
             return;
         }
 
+        $mycred = mycred();
         $topic_id = $_POST['bbp_topic_id'];
         $user_id = get_current_user_id();
-        $mycred = mycred();
-
         $user_creds = get_user_meta( $user_id, 'mycred_default', true );
         $post_meta = get_post_meta( $topic_id );
         $pay_reply = $post_meta['_pay_reply'][0];
@@ -364,11 +361,10 @@ function pay_for_reply() {
         $ar_status = unserialize( $post_meta['_group'][0] );
 
         $current_user = wp_get_current_user();
+        $roles = $current_user->roles;
         if ( ! ($current_user instanceof WP_User ) ) {
             return;
         }
-        $roles = $current_user->roles;
-
         if ( ! $ar_status ) {
             return;
         }
@@ -388,12 +384,10 @@ function remove_creds_for_reply() {
     if ( mycred_exclude_user( $user_id ) ) {
         return;
     }
-
     $topic_id = $_POST['bbp_topic_id'];
     $post_meta = get_post_meta( $topic_id );
     $pay_reply = $post_meta['_pay_reply'][0];
     $cost_reply = $post_meta['_cost_reply'][0];
-
     if ( $pay_reply != 0 ) {
         // remove points
         mycred_subtract( 'vote_down', $user_id, $cost_reply, 'Pay for reply', date( 'y' ) );
