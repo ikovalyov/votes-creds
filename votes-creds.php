@@ -300,7 +300,7 @@ function pay_for_topic() {
         } else {
             $roles = $current_user->roles;
         }
-        
+
         if ( $pay_forum != 0 ) {
             if ( in_array( $roles[0], $ar_status ) ) {
                 return;
@@ -384,8 +384,7 @@ function pay_for_reply() {
         } else {
             $roles = $current_user->roles;
         }
-
-
+        
         if ( in_array( $roles[0], $ar_status ) ) {
             return;
         } else if ( $user_creds < $cost_reply && $pay_reply != 0 ) {
