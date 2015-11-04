@@ -301,9 +301,6 @@ function pay_for_topic() {
             $roles = $current_user->roles;
         }
         
-        if ( ! $ar_status ) {
-            return;
-        }
         if ( $pay_forum != 0 ) {
             if ( in_array( $roles[0], $ar_status ) ) {
                 return;
