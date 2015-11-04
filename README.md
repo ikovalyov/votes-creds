@@ -1,10 +1,6 @@
 # votes_creds
-To connect a plugin, you must first connect:
-- bbpress
-- bbpress-votes
-- myCred
 
-When you add a forum, plugin creates their checkboxes and text fields, where the administrator can specify the
-fee will be shot for the creation of a topic, and whether to accrue credit for voting in topic.
-When you add a topic, the plugin creates a checkbox and a textbox, where the administrator can specify the
-fee will be shot for the answers in this topic.
+This plugin connects 2 plugins: bbpress-votes and myCred
+Plugin adds ability for admin user to specify if user need to pay fee (using creds) 
+for creating new threads within specified forum or to answer in the specified thread. 
+It also adds ability to add creds to the user if his response was voted up or remove creds if it was voted down.
