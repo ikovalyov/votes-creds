@@ -1,4 +1,4 @@
-# votes_up_extended
+# votes_creds
 To connect a plugin, you must first connect:
 - bbpress
 - bbpress-votes
