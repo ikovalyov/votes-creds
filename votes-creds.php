@@ -289,16 +289,21 @@ function pay_for_topic() {
         $pay_forum = $post_meta['_pay_forum'][0];
         $cost_forum = $post_meta['_cost_forum'][0];
         $ar_status = unserialize( $post_meta['_group'][0] );
-		if ( ! $ar_status ) {
-            return;
-        }
 
         $current_user = wp_get_current_user();
         if ( ! ( $current_user instanceof WP_User ) ) {
             return;
         }
-        $roles = $current_user->roles;
 
+        if( ! $ar_status ){
+            return;
+        } else {
+            $roles = $current_user->roles;
+        }
+        
+        if ( ! $ar_status ) {
+            return;
+        }
         if ( $pay_forum != 0 ) {
             if ( in_array( $roles[0], $ar_status ) ) {
                 return;
@@ -371,15 +376,18 @@ function pay_for_reply() {
         $pay_reply = $post_meta['_pay_reply'][0];
         $cost_reply = $post_meta['_cost_reply'][0];
         $ar_status = unserialize( $post_meta['_group'][0] );
-		if ( ! $ar_status ) {
-            return;
-        }
 
         $current_user = wp_get_current_user();
         if ( ! ($current_user instanceof WP_User ) ) {
             return;
         }
-        $roles = $current_user->roles;
+
+        if( ! $ar_status ){
+            return;
+        } else {
+            $roles = $current_user->roles;
+        }
+
 
         if ( in_array( $roles[0], $ar_status ) ) {
             return;
