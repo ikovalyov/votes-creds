@@ -23,6 +23,7 @@ add_action( 'init', 'pay_for_reply' );
 add_action( 'plugins_loaded', 'votes_creds_load_lang' );
 // Hook for add creds for vote
 add_action( 'bbpvotes_do_post_vote', 'do_post_vote_up', 10, 3 );
+add_action( 'bbp_get_caps_for_role', 'votes_add_role', 10, 2);
 
 /**
  * function to load languages
@@ -412,5 +413,12 @@ function remove_creds_for_reply() {
         mycred_subtract( 'vote_down', $user_id, $cost_reply, 'Pay for reply', date( 'y' ) );
     } else {
         return;
+    }
+}
+
+function votes_add_role( $caps, $role) {
+    if ($role === 'bbp_participant') {
+        $caps['read'] = true;
+        return $caps;
     }
 }
