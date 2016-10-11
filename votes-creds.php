@@ -23,7 +23,8 @@ add_action( 'init', 'pay_for_reply' );
 add_action( 'plugins_loaded', 'votes_creds_load_lang' );
 // Hook for add creds for vote
 add_action( 'bbpvotes_do_post_vote', 'do_post_vote_up', 10, 3 );
-add_action( 'bbp_get_caps_for_role', 'votes_add_role', 10, 2);
+add_action( 'bbpvotes_can_user_vote_up_for_post', 'votes_fix', 10, 2);
+add_action( 'bbpvotes_can_user_vote_down_for_post', 'votes_fix', 10, 2);
 
 /**
  * function to load languages
@@ -301,7 +302,7 @@ function pay_for_topic() {
         } else {
             $roles = $current_user->roles;
         }
-
+        
         if ( $pay_forum != 0 ) {
             if ( in_array( $roles[0], $ar_status ) ) {
                 return;
@@ -385,7 +386,8 @@ function pay_for_reply() {
         } else {
             $roles = $current_user->roles;
         }
-        
+
+
         if ( in_array( $roles[0], $ar_status ) ) {
             return;
         } else if ( $user_creds < $cost_reply && $pay_reply != 0 ) {
@@ -416,9 +418,10 @@ function remove_creds_for_reply() {
     }
 }
 
-function votes_add_role( $caps, $role) {
-    if ($role === 'bbp_participant') {
-        $caps['read'] = true;
-        return $caps;
+function votes_fix( $can, $post_id) {
+    if ($can) {
+        return $can;
     }
+
+    return current_user_can( 'participate', $post_id );
 }
